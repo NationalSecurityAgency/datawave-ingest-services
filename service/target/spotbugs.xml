@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<BugCollection version='3.1.12' threshold='high' effort='max'><Error></Error><Project><SrcDir>/home/crwill9/git/datawave-ingest-service/service/src/main/java</SrcDir><SrcDir>/home/crwill9/git/datawave-ingest-service/service/target/generated-sources/annotations</SrcDir><SrcDir>/home/crwill9/git/datawave-ingest-service/service/src/test/java</SrcDir><SrcDir>/home/crwill9/git/datawave-ingest-service/service/target/generated-test-sources/test-annotations</SrcDir></Project></BugCollection>

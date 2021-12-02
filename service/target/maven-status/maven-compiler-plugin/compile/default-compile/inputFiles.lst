@@ -1,0 +1,3 @@
+/home/crwill9/git/datawave-ingest-service/service/src/main/java/datawave/microservice/ingest/IngestService.java
+/home/crwill9/git/datawave-ingest-service/service/src/main/java/datawave/microservice/ingest/config/IngestProperties.java
+/home/crwill9/git/datawave-ingest-service/service/src/main/java/datawave/microservice/ingest/messaging/SplitConsumer.java
