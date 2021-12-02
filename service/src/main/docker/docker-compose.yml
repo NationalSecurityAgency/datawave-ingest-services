@@ -1,0 +1,442 @@
+version: '2.2'
+services:
+  consul:
+    image: consul:1.9.8
+    hostname: localhost
+    environment:
+      - 'CONSUL_LOCAL_CONFIG={"datacenter": "demo_dc", "disable_update_check": true, "enable_agent_tls_for_checks": true, "key_file": "/etc/pki/testServer.key", "cert_file": "/etc/pki/testServer.crt", "ca_file": "/etc/pki/testCA.pem", "verify_outgoing": true, "verify_server_hostname": false}'
+      - CONSUL_BIND_INTERFACE=eth0
+    # defined as host:container
+    ports:
+      - "8400"
+      - "8500:8500"
+      - "53"
+    volumes:
+      - ${PKI_DIR:-./pki}:/etc/pki:ro
+    networks:
+      - demo
+
+  rabbitmq:
+    image: rabbitmq:3.8.25-alpine
+    volumes:
+      - ${RABBITMQ_CONFIG_DIR:-./rabbitmq-config}:/etc/rabbitmq
+      - ./logs:/logs
+    environment:
+      - TCP_PORTS=15672, 5672
+      - RABBITMQ_ERLANG_COOKIE="mycookie"
+    ports:
+      - "15672:15672"
+    networks:
+      - demo
+    depends_on:
+      consul:
+        condition: service_started
+
+#  zookeeper:
+#    image: docker.io/bitnami/zookeeper:3
+#    ports:
+#      - "3181"
+#    networks:
+#      - demo
+#    environment:
+#      - ALLOW_ANONYMOUS_LOGIN=yes
+#      - ZOO_PORT_NUMBER=3181
+
+#  kafka:
+#    image: docker.io/bitnami/kafka:2
+#    ports:
+#      - "9093:9093"
+#    networks:
+#      - demo
+#    environment:
+#      - KAFKA_BROKER_ID=1
+#      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:3181
+#      - ALLOW_PLAINTEXT_LISTENER=yes
+#      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+#      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+#      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://${HOSTNAME}:9093
+#      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+#      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+#      - KAFKA_CFG_DELETE_TOPICS_ENABLE=true
+#    depends_on:
+#      zookeeper:
+#        condition: service_started
+
+#  kafdrop:
+#    profiles:
+#      - management
+#      - full
+#    image: obsidiandynamics/kafdrop
+#    ports:
+#      - "8999:9000"
+#    networks:
+#      - demo
+#    environment:
+#      - "KAFKA_BROKERCONNECT=${HOSTNAME}:9093"
+#    # This mapping is required to enable kafdrop to communicate with
+#    # the external, host-bound port for kafka
+#    extra_hosts:
+#      - "${HOSTNAME}:${HOST_IP}"
+#      - "${HOST_FQDN}:${HOST_IP}"
+#    depends_on:
+#      kafka:
+#        condition: service_started
+
+  configuration:
+    image: datawave/config-service:1.5-SNAPSHOT
+    command:
+      - --spring.output.ansi.enabled=ALWAYS
+      - --spring.profiles.active=consul,native,open_actuator
+      - --spring.cloud.consul.host=consul
+      - --spring.cloud.config.server.native.searchLocations=file:///microservice-config
+    environment:
+      - 'KEYSTORE_LOCATION=file:///etc/pki/testServer.p12'
+      - KEYSTORE_PASSWORD=ChangeIt
+      - KEY_ALIAS=certificate
+    ports:
+      - "8888:8888"
+    volumes:
+      - ${CONFIG_DIR:-./config}:/microservice-config:ro
+      - ${PKI_DIR:-./pki}:/etc/pki:ro
+      - ./logs:/logs
+    networks:
+      - demo
+    depends_on:
+      rabbitmq:
+        condition: service_started
+
+  ingest:
+    image: datawave/ingest-service:1.0-SNAPSHOT
+    command:
+      - --spring.output.ansi.enabled=ALWAYS
+      - --spring.profiles.active=consul,compose
+      - --spring.cloud.consul.host=consul
+      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+    volumes:
+      - ./logs:/logs
+    networks:
+      - demo
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      configuration:
+        condition: service_started
+
+#  cache:
+#    image: datawave/hazelcast-service:1.7-SNAPSHOT
+#    scale: 1
+#    command:
+#      - --spring.profiles.active=consul,compose
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    ports:
+#      - "5701-5703"
+#      - "8080"
+#      - "8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs:/logs
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/cache/mgmt/health
+#    depends_on:
+#      configuration:
+#        condition: service_started
+#
+#  authorization:
+#    image: datawave/authorization-service:1.11-SNAPSHOT
+#    command:
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,mock,compose
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    ports:
+#      - "8080"
+#      - "8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs:/logs
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/authorization/mgmt/health
+#    depends_on:
+#      cache:
+#        condition: service_healthy
+#
+#  audit:
+#    image: datawave/audit-service:1.10-SNAPSHOT
+#    command:
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,compose
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    environment:
+#      - "ZOOKEEPER_HOST=${HOSTNAME}"
+#    # This mapping is required to enable the metrics service to communicate
+#    # with host-deployed services like hadoop, zookeeper, and accumulo.
+#    # These values are set locally in .env via bootstrap.sh
+#    extra_hosts:
+#      - "${HOSTNAME}:${HOST_IP}"
+#      - "${HOST_FQDN}:${HOST_IP}"
+#    ports:
+#      - "8080"
+#      - "8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs:/logs
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/audit/mgmt/health
+#    depends_on:
+#      authorization:
+#        condition: service_healthy
+
+#  querymetric:
+#    image: datawave/query-metric-service:1.3-SNAPSHOT
+#    command:
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,compose,remoteauth
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    environment:
+#      - "ZOOKEEPER_HOST=${HOSTNAME}"
+#    # This mapping is required to enable the metrics service to communicate
+#    # with host-deployed services like hadoop, zookeeper, and accumulo.
+#    # These values are set locally in .env via bootstrap.sh
+#    extra_hosts:
+#      - "${HOSTNAME}:${HOST_IP}"
+#      - "${HOST_FQDN}:${HOST_IP}"
+#    ports:
+#      - "8180:8080"
+#      - "8543:8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs:/logs
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/querymetric/mgmt/health
+#    depends_on:
+#      authorization:
+#        condition: service_healthy
+
+#  dictionary:
+#    profiles:
+#      - dictionary
+#      - full
+#    image: datawave/dictionary-service:1.2-SNAPSHOT
+#    command:
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,compose,remoteauth
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    environment:
+#      - "ZOOKEEPER_HOST=${HOSTNAME}"
+#    # This mapping is required to enable the metrics service to communicate
+#    # with host-deployed services like hadoop, zookeeper, and accumulo.
+#    # These values are set locally in .env via bootstrap.sh
+#    extra_hosts:
+#      - "${HOSTNAME}:${HOST_IP}"
+#      - "${HOST_FQDN}:${HOST_IP}"
+#    ports:
+#      - "8280:8080"
+#      - "8643:8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs:/logs
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/dictionary/mgmt/health
+#    depends_on:
+#      authorization:
+#        condition: service_healthy
+
+#  query:
+#    image: datawave/query-service:1.0-SNAPSHOT
+#    command:
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,compose,remoteauth,storage,metricssource,query
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    environment:
+#      - AUDIT_SERVER_URL=http://audit:8080/audit
+#    ports:
+#      - "8080:8080"
+#      - "8443:8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs:/logs
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/query/mgmt/health
+#    depends_on:
+#      audit:
+#        condition: service_healthy
+#      authorization:
+#        condition: service_healthy
+#      querymetric:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+#      executor-pool1:
+#        condition: service_started
+
+#  executor-pool1:
+#    image: datawave/query-executor-service:1.0-SNAPSHOT
+#    command:
+#      - --spring.application.name=executor-pool1
+#      - --spring.cloud.config.name=executor
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,compose,remoteauth,storage,metricssource,query,pool1
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    environment:
+#      - "ZOOKEEPER_HOST=${HOSTNAME}"
+#    # This mapping is required to enable the metrics service to communicate
+#    # with host-deployed services like hadoop, zookeeper, and accumulo.
+#    # These values are set locally in .env via bootstrap.sh
+#    extra_hosts:
+#      - "${HOSTNAME}:${HOST_IP}"
+#      - "${HOST_FQDN}:${HOST_IP}"
+#    ports:
+#      - "8380:8080"
+#      - "8743:8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs/pool1:/logs
+#      - ../../contrib/datawave-quickstart/hadoop/etc/hadoop:/etc/hadoop/conf
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/executor-pool1/mgmt/health
+#    depends_on:
+#      messaging:
+#        condition: service_started
+#      authorization:
+#        condition: service_healthy
+#      querymetric:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+
+#  executor-pool2:
+#    profiles:
+#      - pool2
+#      - full
+#    image: datawave/query-executor-service:1.0-SNAPSHOT
+#    command:
+#      - --spring.application.name=executor-pool2
+#      - --spring.cloud.config.name=executor
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,compose,remoteauth,storage,metricssource,query,pool2
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    environment:
+#      - "ZOOKEEPER_HOST=${HOSTNAME}"
+#    # This mapping is required to enable the metrics service to communicate
+#    # with host-deployed services like hadoop, zookeeper, and accumulo.
+#    # These values are set locally in .env via bootstrap.sh
+#    extra_hosts:
+#      - "${HOSTNAME}:${HOST_IP}"
+#      - "${HOST_FQDN}:${HOST_IP}"
+#    ports:
+#      - "8480:8080"
+#      - "8843:8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs/pool2:/logs
+#      - ../../contrib/datawave-quickstart/hadoop/etc/hadoop:/etc/hadoop/conf
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/executor-pool2/mgmt/health
+#    depends_on:
+#      messaging:
+#        condition: service_started
+#      authorization:
+#        condition: service_healthy
+#      querymetric:
+#        condition: service_healthy
+
+#  querystorage:
+#    profiles:
+#      - storage
+#      - full
+#    image: datawave/query-storage-service:1.0-SNAPSHOT
+#    command:
+#      - --spring.output.ansi.enabled=ALWAYS
+#      - --spring.profiles.active=consul,compose,remoteauth,storage,query
+#      - --spring.cloud.consul.host=discovery
+#      - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
+#    environment:
+#      - "ZOOKEEPER_HOST=${HOSTNAME}"
+#    extra_hosts:
+#      - "${HOSTNAME}:${HOST_IP}"
+#      - "${HOST_FQDN}:${HOST_IP}"
+#    ports:
+#      - "8580:8080"
+#      - "8943:8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#      - ./logs:/logs
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: curl -f http://localhost:8080/query-storage/mgmt/health
+#    depends_on:
+#      authorization:
+#        condition: service_healthy
+
+  # If you use the management center, you can connect to the hazelcast cache as follows:
+  # In your browser connect to https://localhost:9043/
+  # Enable 'dev' mode
+  # Click 'Add Cluster Config'
+  # Enter the following for the cache service:
+  #  - Cluster Name: cache
+  #  - Cluster Config: Enabled
+  #  - Member Addresses: cache
+  # Enter the following for the query metric service:
+  #  - Cluster Name: metrics
+  #  - Cluster Config: Enabled
+  #  - Member Addresses: metrics
+  # Use the console to view the cache contents
+  #  - Select the 'cache' cluster
+  #  - Select 'Console' under the 'CLUSTER' navigation entry
+  #  - Run the following commands to list all entries in the 'datawaveUsers' map:
+  #    - ns datawaveUsers
+  #    - m.entries
+#  management-center:
+#    profiles:
+#      - management
+#      - full
+#    image: hazelcast/management-center:4.2021.06
+#    environment:
+#      - |-
+#        JAVA_OPTS=
+#        -Dhazelcast.mc.healthCheck.enable=true
+#        -Dhazelcast.mc.tls.enabled=true
+#        -Dhazelcast.mc.tls.keyStore=/etc/pki/testServer.p12
+#        -Dhazelcast.mc.tls.keyStorePassword=ChangeIt
+#        -Dhazelcast.mc.tls.trustStore=/etc/pki/testCA.p12
+#        -Dhazelcast.mc.tls.trustStorePassword=ChangeIt
+#    ports:
+#      - "8081"
+#      - "9043:8443"
+#    volumes:
+#      - ${PKI_DIR:-./pki}:/etc/pki:ro
+#    networks:
+#      - demo
+#    healthcheck:
+#      test: wget -q http://localhost:8081/health -O /dev/null || exit 1
+#    depends_on:
+#      cache:
+#        condition: service_healthy
+
+networks:
+  demo:
