@@ -6,6 +6,7 @@ LABEL version=${project.version} \
 
 ADD ${project.build.finalName}-exec.jar /app.jar
 RUN apk add libc6-compat curl
+RUN apk add bash
 
 EXPOSE 8443 8080
 ENTRYPOINT ["java","-jar","app.jar"]
