@@ -11,21 +11,25 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
 
+@org.springframework.context.annotation.Configuration
 public class BasicInputMessage implements InputMessage {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     
+    @Autowired
     private IngestProperties properties;
     
     private String message;
     
     private InputSplit split;
     private RecordReader recordReader;
-    
-    public BasicInputMessage(String message) {
-        this.message = message;
+
+    public BasicInputMessage() {
+        
     }
     
     @Override
@@ -59,12 +63,15 @@ public class BasicInputMessage implements InputMessage {
         Path filePath = new Path(splits[0]);
         log.info("got file path: " + filePath);
         log.info("got input format class: " + splits[1]);
-
+        
         Configuration conf = new Configuration();
         if (properties != null) {
             for (String fsConfigResource : properties.getFsConfigResources()) {
                 conf.addResource(new Path(fsConfigResource));
+                log.info("Added resource: " + fsConfigResource);
             }
+        } else {
+            log.info("Properties null!");
         }
         
         FileSystem fs = FileSystem.get(filePath.toUri(), conf);
@@ -86,5 +93,9 @@ public class BasicInputMessage implements InputMessage {
         } catch (InterruptedException e) {
             log.error("Could not instantiate record reader", e);
         }
+    }
+    
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -9,6 +9,7 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,14 +20,13 @@ import java.util.function.Consumer;
 public class SplitConsumer {
     private Logger log = LoggerFactory.getLogger(this.getClass());
     
-    private IngestProperties properties;
-    
     @Bean
     public Consumer<String> splitSink() {
         return s -> {
             log.info("got message: " + s);
             
-            BasicInputMessage basicInputMessage = new BasicInputMessage(s);
+            BasicInputMessage basicInputMessage = new BasicInputMessage();
+            basicInputMessage.setMessage(s);
             RecordReader rr = null;
             try {
                 rr = basicInputMessage.getRecordReader();
