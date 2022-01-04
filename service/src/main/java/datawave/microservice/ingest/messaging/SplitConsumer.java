@@ -1,10 +1,21 @@
 package datawave.microservice.ingest.messaging;
 
+import datawave.ingest.data.RawRecordContainer;
+import datawave.ingest.mapreduce.ContextWrappedStatusReporter;
+import datawave.ingest.mapreduce.EventMapper;
+import datawave.ingest.mapreduce.job.BulkIngestKey;
+import datawave.ingest.mapreduce.job.MultiRFileOutputFormatter;
 import datawave.microservice.ingest.configuration.IngestProperties;
+import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.lib.map.WrappedMapper;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.task.MapContextImpl;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
+import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +43,8 @@ public class SplitConsumer {
             BasicInputMessage basicInputMessage = new BasicInputMessage(properties, getConf());
             basicInputMessage.setMessage(s);
             RecordReader rr = null;
+            EventMapper<LongWritable,RawRecordContainer,BulkIngestKey,Value> eventMapper = new EventMapper<>();
+            MapFileOutputFormat outputFormat = new MapFileOutputFormat();
             try {
                 rr = basicInputMessage.getRecordReader();
             } catch (IOException e) {
@@ -43,11 +56,19 @@ public class SplitConsumer {
                     // set the override
                     org.apache.hadoop.conf.Configuration conf = getConf();
                     conf.set("data.name.override", basicInputMessage.getDataName());
-                    ;
-                    rr.initialize(basicInputMessage.getSplit(), new TaskAttemptContextImpl(conf, new TaskAttemptID()));
+                    
+                    TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(conf, new TaskAttemptID());
+                    RecordWriter recordWriter = outputFormat.getRecordWriter(taskAttemptContext);
+                    OutputCommitter committer = outputFormat.getOutputCommitter(taskAttemptContext);
+                    rr.initialize(basicInputMessage.getSplit(), taskAttemptContext);
+                    WrappedMapper wrappedMapper = new WrappedMapper();
+                    Mapper.Context mapContext = wrappedMapper.getMapContext(new MapContextImpl(conf, new TaskAttemptID(), rr, recordWriter, committer,
+                                    new ContextWrappedStatusReporter(taskAttemptContext), basicInputMessage.getSplit()));
+                    eventMapper.setup(mapContext);
                     while (rr.nextKeyValue()) {
                         // hand them off to the event mapper
                         log.info("got next key/value pair");
+                        eventMapper.map((LongWritable) rr.getCurrentKey(), (RawRecordContainer) rr.getCurrentValue(), mapContext);
                         // TODO
                     }
                 } catch (IOException e) {
@@ -68,6 +89,10 @@ public class SplitConsumer {
                 conf.addResource(new Path(fsConfigResource));
                 log.info("Added resource: " + fsConfigResource);
             }
+            
+            conf.set("mapreduce.output.fileoutputformat.outputdir", properties.getWorkPath());
+            conf.set("num.shards", properties.getNumShards());
+            conf.set("shard.table.name", properties.getShardTableName());
         } else {
             log.info("Properties null!");
         }
