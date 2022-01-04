@@ -23,6 +23,7 @@ public class BasicInputMessage implements InputMessage {
     
     private InputSplit split;
     private RecordReader recordReader;
+    private String dataName;
     
     public BasicInputMessage(IngestProperties properties) {
         this.properties = properties;
@@ -38,6 +39,14 @@ public class BasicInputMessage implements InputMessage {
     }
     
     @Override
+    public String getDataName() throws IOException {
+        if (dataName == null) {
+            parse(message);
+        }
+        return dataName;
+    }
+    
+    @Override
     public RecordReader getRecordReader() throws IOException {
         if (recordReader == null) {
             parse(message);
@@ -46,19 +55,22 @@ public class BasicInputMessage implements InputMessage {
     }
     
     /**
-     * Basic message format filePath,InputFormatClass
+     * Basic message format filePath,InputFormatClass,dataName
      * 
      * @param message
      */
     private void parse(String message) throws IOException {
         String[] splits = message.split(",");
-        if (splits.length != 2) {
-            throw new IllegalArgumentException("Unexpected message format, should be filePath,InputFormatClass. Got " + message);
+        if (splits.length != 3) {
+            throw new IllegalArgumentException("Unexpected message format, should be filePath,InputFormatClass,dataName. Got " + message);
         }
         
         Path filePath = new Path(splits[0]);
         log.info("got file path: " + filePath);
         log.info("got input format class: " + splits[1]);
+        log.info("got data name: " + splits[2]);
+        
+        dataName = splits[2];
         
         Configuration conf = new Configuration();
         if (properties != null) {

@@ -9,5 +9,7 @@ import java.io.IOException;
 public interface InputMessage {
     InputSplit getSplit() throws IOException;
     
+    String getDataName() throws IOException;
+    
     RecordReader getRecordReader() throws IOException;
 }
