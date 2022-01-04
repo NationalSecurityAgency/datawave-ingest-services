@@ -24,9 +24,11 @@ public class BasicInputMessage implements InputMessage {
     private InputSplit split;
     private RecordReader recordReader;
     private String dataName;
+    private Configuration conf;
     
-    public BasicInputMessage(IngestProperties properties) {
+    public BasicInputMessage(IngestProperties properties, Configuration conf) {
         this.properties = properties;
+        this.conf = conf;
     }
     
     @Override
@@ -71,16 +73,6 @@ public class BasicInputMessage implements InputMessage {
         log.info("got data name: " + splits[2]);
         
         dataName = splits[2];
-        
-        Configuration conf = new Configuration();
-        if (properties != null) {
-            for (String fsConfigResource : properties.getFsConfigResources()) {
-                conf.addResource(new Path(fsConfigResource));
-                log.info("Added resource: " + fsConfigResource);
-            }
-        } else {
-            log.info("Properties null!");
-        }
         
         FileSystem fs = FileSystem.get(filePath.toUri(), conf);
         FileStatus fileStatus = fs.getFileStatus(filePath);

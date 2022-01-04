@@ -1,6 +1,7 @@
 package datawave.microservice.ingest.messaging;
 
 import datawave.microservice.ingest.configuration.IngestProperties;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
@@ -25,11 +26,10 @@ public class SplitConsumer {
     
     @Bean
     public Consumer<String> splitSink() {
-        
         return s -> {
             log.info("got message: " + s);
             
-            BasicInputMessage basicInputMessage = new BasicInputMessage(properties);
+            BasicInputMessage basicInputMessage = new BasicInputMessage(properties, getConf());
             basicInputMessage.setMessage(s);
             RecordReader rr = null;
             try {
@@ -40,8 +40,11 @@ public class SplitConsumer {
             
             if (rr != null) {
                 try {
-                    // TODO
-                    rr.initialize(basicInputMessage.getSplit(), new TaskAttemptContextImpl(new org.apache.hadoop.conf.Configuration(), new TaskAttemptID()));
+                    // set the override
+                    org.apache.hadoop.conf.Configuration conf = getConf();
+                    conf.set("data.name.override", basicInputMessage.getDataName());
+                    ;
+                    rr.initialize(basicInputMessage.getSplit(), new TaskAttemptContextImpl(conf, new TaskAttemptID()));
                     while (rr.nextKeyValue()) {
                         // hand them off to the event mapper
                         log.info("got next key/value pair");
@@ -55,5 +58,20 @@ public class SplitConsumer {
             }
             
         };
+    }
+    
+    @Bean
+    public org.apache.hadoop.conf.Configuration getConf() {
+        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
+        if (properties != null) {
+            for (String fsConfigResource : properties.getFsConfigResources()) {
+                conf.addResource(new Path(fsConfigResource));
+                log.info("Added resource: " + fsConfigResource);
+            }
+        } else {
+            log.info("Properties null!");
+        }
+        
+        return conf;
     }
 }
