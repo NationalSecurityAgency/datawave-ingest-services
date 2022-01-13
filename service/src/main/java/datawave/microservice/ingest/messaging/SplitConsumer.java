@@ -10,9 +10,11 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.map.WrappedMapper;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.task.MapContextImpl;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.jboss.resteasy.annotations.providers.jaxb.Wrapped;
@@ -44,7 +46,7 @@ public class SplitConsumer {
             basicInputMessage.setMessage(s);
             RecordReader rr = null;
             EventMapper<LongWritable,RawRecordContainer,BulkIngestKey,Value> eventMapper = new EventMapper<>();
-            MapFileOutputFormat outputFormat = new MapFileOutputFormat();
+            SequenceFileOutputFormat outputFormat = new SequenceFileOutputFormat();
             try {
                 rr = basicInputMessage.getRecordReader();
             } catch (IOException e) {
@@ -56,6 +58,7 @@ public class SplitConsumer {
                     // set the override
                     org.apache.hadoop.conf.Configuration conf = getConf();
                     conf.set("data.name.override", basicInputMessage.getDataName());
+                    conf.set("mapreduce.output.basename", ((FileSplit) basicInputMessage.getSplit()).getPath().getName());
                     
                     TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(conf, new TaskAttemptID());
                     RecordWriter recordWriter = outputFormat.getRecordWriter(taskAttemptContext);
@@ -69,8 +72,10 @@ public class SplitConsumer {
                         // hand them off to the event mapper
                         log.info("got next key/value pair");
                         eventMapper.map((LongWritable) rr.getCurrentKey(), (RawRecordContainer) rr.getCurrentValue(), mapContext);
-                        // TODO
                     }
+                    
+                    // finalize the output
+                    committer.commitTask(taskAttemptContext);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -81,6 +86,11 @@ public class SplitConsumer {
         };
     }
     
+    /**
+     * fsConfigResources are applied in the order they are configured. Duplicate properties will be overridden by the last appearance
+     * 
+     * @return
+     */
     @Bean
     public org.apache.hadoop.conf.Configuration getConf() {
         org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
@@ -89,10 +99,6 @@ public class SplitConsumer {
                 conf.addResource(new Path(fsConfigResource));
                 log.info("Added resource: " + fsConfigResource);
             }
-            
-            conf.set("mapreduce.output.fileoutputformat.outputdir", properties.getWorkPath());
-            conf.set("num.shards", properties.getNumShards());
-            conf.set("shard.table.name", properties.getShardTableName());
         } else {
             log.info("Properties null!");
         }
