@@ -1,0 +1,28 @@
+spring:
+  cloud:
+    stream:
+      rabbit:
+        bindings:
+          splitSink-in-0:
+            consumer:
+              autoBindDlq: true
+      bindings:
+        splitSink-in-0:
+          destination: 'ingest'
+          group: 'splits'
+    # NOTE: When defining your functions, be sure to include busConsumer, or else spring cloud bus will not work
+    function:
+      definition: splitSink;busConsumer
+
+logging:
+  level:
+    datawave.microservice.ingest: DEBUG
+
+ingest:
+  fsConfigResources:
+    - /etc/hadoop/conf/hdfs-site.xml
+    - /etc/hadoop/conf/core-site.xml
+    - /etc/datawave/conf/all-config.xml
+    - /etc/datawave/conf/csv-ingest-config.xml
+    - /etc/datawave/conf/table-config.xml
+    - /etc/datawave/conf/mr-config.xml
