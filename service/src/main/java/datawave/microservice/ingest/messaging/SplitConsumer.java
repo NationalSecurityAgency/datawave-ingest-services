@@ -40,25 +40,35 @@ public class SplitConsumer {
     @Bean
     public Consumer<String> splitSink() {
         return s -> {
-            log.info("got message: " + s);
+            if (log.isTraceEnabled()) {
+                log.trace("got message: " + s);
+            }
             
             BasicInputMessage basicInputMessage = new BasicInputMessage(properties, getConf());
             basicInputMessage.setMessage(s);
-            RecordReader rr = null;
+            RecordReader rr;
             EventMapper<LongWritable,RawRecordContainer,BulkIngestKey,Value> eventMapper = new EventMapper<>();
             SequenceFileOutputFormat outputFormat = new SequenceFileOutputFormat();
             try {
                 rr = basicInputMessage.getRecordReader();
             } catch (IOException e) {
-                e.printStackTrace();
+                // record the failure and throw an exception to prevent the ACK
+                log.error("failed to get record reader", e);
+                throw new RuntimeException(e);
             }
             
             if (rr != null) {
+                FileSplit fileSplit = null;
                 try {
                     // set the override
                     org.apache.hadoop.conf.Configuration conf = getConf();
                     conf.set("data.name.override", basicInputMessage.getDataName());
-                    conf.set("mapreduce.output.basename", ((FileSplit) basicInputMessage.getSplit()).getPath().getName());
+                    fileSplit = (FileSplit) basicInputMessage.getSplit();
+                    if (fileSplit == null) {
+                        throw new IllegalStateException("File split null from input message: " + s);
+                    }
+                    
+                    conf.set("mapreduce.output.basename", fileSplit.getPath().getName());
                     
                     TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(conf, new TaskAttemptID());
                     RecordWriter recordWriter = outputFormat.getRecordWriter(taskAttemptContext);
@@ -70,19 +80,18 @@ public class SplitConsumer {
                     eventMapper.setup(mapContext);
                     while (rr.nextKeyValue()) {
                         // hand them off to the event mapper
-                        log.info("got next key/value pair");
+                        log.trace("got next key/value pair");
                         eventMapper.map((LongWritable) rr.getCurrentKey(), (RawRecordContainer) rr.getCurrentValue(), mapContext);
                     }
                     
                     // finalize the output
                     committer.commitTask(taskAttemptContext);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (IOException | InterruptedException e) {
+                    // throw new exception to prevent ACK
+                    log.error("Unable to process split: " + fileSplit.getPath().toString(), e);
+                    throw new RuntimeException("Failed to process split: " + fileSplit.getPath().toString());
                 }
             }
-            
         };
     }
     
@@ -100,7 +109,7 @@ public class SplitConsumer {
                 log.info("Added resource: " + fsConfigResource);
             }
         } else {
-            log.info("Properties null!");
+            log.warn("Properties null!");
         }
         
         return conf;
