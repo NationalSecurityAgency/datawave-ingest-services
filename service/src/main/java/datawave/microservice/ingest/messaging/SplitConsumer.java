@@ -69,7 +69,8 @@ public class SplitConsumer {
                 }
                 
                 TaskID taskId = new TaskID();
-                TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(conf, new TaskAttemptID(taskId, attempt));
+                TaskAttemptID taskAttemptId = new TaskAttemptID(taskId, attempt);
+                TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(conf, taskAttemptId);
                 
                 try {
                     // set the override
@@ -85,7 +86,7 @@ public class SplitConsumer {
                     committer = outputFormat.getOutputCommitter(taskAttemptContext);
                     rr.initialize(basicInputMessage.getSplit(), taskAttemptContext);
                     WrappedMapper wrappedMapper = new WrappedMapper();
-                    Mapper.Context mapContext = wrappedMapper.getMapContext(new MapContextImpl(conf, new TaskAttemptID(), rr, recordWriter, committer,
+                    Mapper.Context mapContext = wrappedMapper.getMapContext(new MapContextImpl(conf, taskAttemptId, rr, recordWriter, committer,
                                     new ContextWrappedStatusReporter(taskAttemptContext), basicInputMessage.getSplit()));
                     eventMapper.setup(mapContext);
                     while (rr.nextKeyValue()) {
