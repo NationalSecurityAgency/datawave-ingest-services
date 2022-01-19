@@ -4,14 +4,18 @@ import datawave.ingest.data.RawRecordContainer;
 import datawave.ingest.mapreduce.ContextWrappedStatusReporter;
 import datawave.ingest.mapreduce.EventMapper;
 import datawave.ingest.mapreduce.job.BulkIngestKey;
+import datawave.microservice.ingest.adapter.ManifestOutputFormat;
 import datawave.microservice.ingest.configuration.IngestProperties;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.map.WrappedMapper;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.mapreduce.task.MapContextImpl;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.slf4j.Logger;
@@ -81,11 +85,10 @@ public class SplitConsumer {
                     }
                     
                     String messageUuid = s.getHeaders().getId().toString();
+                    conf.set("mapreduce.output.basename", messageUuid);
                     taskId = new TaskID(new JobID(messageUuid, 1234), TaskType.MAP, attempt);
                     taskAttemptId = new TaskAttemptID(taskId, attempt);
                     taskAttemptContext = new TaskAttemptContextImpl(conf, taskAttemptId);
-                    
-                    conf.set("mapreduce.output.basename", messageUuid);
                     
                     RecordWriter recordWriter = outputFormat.getRecordWriter(taskAttemptContext);
                     committer = outputFormat.getOutputCommitter(taskAttemptContext);
@@ -102,6 +105,7 @@ public class SplitConsumer {
                     
                     // finalize the output
                     committer.commitTask(taskAttemptContext);
+                    createManifest(conf, messageUuid, attempt, fileSplit.getPath().toString());
                 } catch (IOException | InterruptedException e) {
                     // throw new exception to prevent ACK
                     String fileName = "unknown file";
@@ -148,5 +152,27 @@ public class SplitConsumer {
         }
         
         return conf;
+    }
+    
+    private void createManifest(org.apache.hadoop.conf.Configuration baseConf, String uuid, int attempt, String filePath)
+                    throws IOException, InterruptedException {
+        FileOutputFormat<Text,Text> outputFormat = new ManifestOutputFormat<>();
+        
+        // create a copy of the conf
+        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration(baseConf);
+        
+        // override the name with the uuid
+        conf.set("mapreduce.output.basename", uuid);
+        
+        TaskID taskId = new TaskID(new JobID(uuid, 1234), TaskType.MAP, attempt);
+        TaskAttemptID taskAttemptId = new TaskAttemptID(taskId, attempt);
+        TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(conf, taskAttemptId);
+        
+        RecordWriter<Text,Text> recordWriter = outputFormat.getRecordWriter(taskAttemptContext);
+        recordWriter.write(new Text(uuid), new Text(filePath));
+        taskAttemptContext.progress();
+        recordWriter.close(taskAttemptContext);
+        OutputCommitter committer = outputFormat.getOutputCommitter(taskAttemptContext);
+        committer.commitTask(taskAttemptContext);
     }
 }
