@@ -68,9 +68,9 @@ public class SplitConsumer {
                     attempt = ((AtomicInteger) deliveryAttemptObj).get();
                 }
                 
-                TaskID taskId = new TaskID();
-                TaskAttemptID taskAttemptId = new TaskAttemptID(taskId, attempt);
-                TaskAttemptContext taskAttemptContext = new TaskAttemptContextImpl(conf, taskAttemptId);
+                TaskID taskId = null;
+                TaskAttemptID taskAttemptId = null;
+                TaskAttemptContext taskAttemptContext = null;
                 
                 try {
                     // set the override
@@ -79,6 +79,10 @@ public class SplitConsumer {
                     if (fileSplit == null) {
                         throw new IllegalStateException("File split null from input message: " + message);
                     }
+                    
+                    taskId = new TaskID(new JobID(fileSplit.getPath().getName(), 1234), TaskType.MAP, attempt);
+                    taskAttemptId = new TaskAttemptID(taskId, attempt);
+                    taskAttemptContext = new TaskAttemptContextImpl(conf, taskAttemptId);
                     
                     conf.set("mapreduce.output.basename", fileSplit.getPath().getName());
                     
@@ -99,14 +103,24 @@ public class SplitConsumer {
                     committer.commitTask(taskAttemptContext);
                 } catch (IOException | InterruptedException e) {
                     // throw new exception to prevent ACK
-                    log.error("Unable to process split: " + fileSplit.getPath().toString(), e);
-                    throw new RuntimeException("Failed to process split: " + fileSplit.getPath().toString());
+                    String fileName = "unknown file";
+                    if (fileSplit != null) {
+                        fileName = fileSplit.getPath().toString();
+                    }
+                    log.error("Unable to process split: " + fileName, e);
+                    
+                    throw new RuntimeException("Failed to process split: " + fileName);
                 } finally {
                     if (committer != null) {
                         try {
                             committer.abortTask(taskAttemptContext);
                         } catch (IOException e) {
-                            log.warn("Failed to abort task for split: " + fileSplit.getPath().toString(), e);
+                            String fileName = "unknown file";
+                            if (fileSplit != null) {
+                                fileName = fileSplit.getPath().toString();
+                            }
+                            
+                            log.warn("Failed to abort task for split: " + fileName, e);
                         }
                     }
                 }
