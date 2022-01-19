@@ -80,11 +80,12 @@ public class SplitConsumer {
                         throw new IllegalStateException("File split null from input message: " + message);
                     }
                     
-                    taskId = new TaskID(new JobID(fileSplit.getPath().getName(), 1234), TaskType.MAP, attempt);
+                    String messageUuid = s.getHeaders().getId().toString();
+                    taskId = new TaskID(new JobID(messageUuid, 1234), TaskType.MAP, attempt);
                     taskAttemptId = new TaskAttemptID(taskId, attempt);
                     taskAttemptContext = new TaskAttemptContextImpl(conf, taskAttemptId);
                     
-                    conf.set("mapreduce.output.basename", fileSplit.getPath().getName());
+                    conf.set("mapreduce.output.basename", messageUuid);
                     
                     RecordWriter recordWriter = outputFormat.getRecordWriter(taskAttemptContext);
                     committer = outputFormat.getOutputCommitter(taskAttemptContext);
@@ -113,6 +114,7 @@ public class SplitConsumer {
                 } finally {
                     if (committer != null) {
                         try {
+                            // if there is anything that hasn't been committed abort it
                             committer.abortTask(taskAttemptContext);
                         } catch (IOException e) {
                             String fileName = "unknown file";
