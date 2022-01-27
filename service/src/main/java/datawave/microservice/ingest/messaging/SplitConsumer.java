@@ -8,6 +8,7 @@ import datawave.microservice.ingest.adapter.ManifestOutputFormat;
 import datawave.microservice.ingest.configuration.IngestProperties;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.Syncable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.*;
@@ -78,7 +79,7 @@ public class SplitConsumer {
                 
                 try {
                     // set the override
-                    conf.set("data.name.override", basicInputMessage.getDataName());
+                    conf.set("data.name.override", basicInputMessage.getDataName().trim());
                     fileSplit = (FileSplit) basicInputMessage.getSplit();
                     if (fileSplit == null) {
                         throw new IllegalStateException("File split null from input message: " + message);
@@ -102,6 +103,13 @@ public class SplitConsumer {
                         log.trace("got next key/value pair");
                         eventMapper.map((LongWritable) rr.getCurrentKey(), (RawRecordContainer) rr.getCurrentValue(), mapContext);
                     }
+                    
+                    if (recordWriter instanceof Syncable) {
+                        ((Syncable) recordWriter).hflush();
+                    }
+                    
+                    // close the output first
+                    recordWriter.close(taskAttemptContext);
                     
                     // finalize the output
                     committer.commitTask(taskAttemptContext);
