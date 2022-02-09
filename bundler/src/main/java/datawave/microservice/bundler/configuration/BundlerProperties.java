@@ -21,6 +21,7 @@ public class BundlerProperties {
     private long maxAge;
     private long maxFiles;
     private long maxSize;
+    private long scanFrequency;
     
     public List<String> getFsConfigResources() {
         return fsConfigResources;
@@ -77,5 +78,13 @@ public class BundlerProperties {
     
     public void setMaxSize(long maxSize) {
         this.maxSize = maxSize;
+    }
+    
+    public long getScanFrequency() {
+        return scanFrequency;
+    }
+    
+    public void setScanFrequency(long scanFrequency) {
+        this.scanFrequency = scanFrequency;
     }
 }

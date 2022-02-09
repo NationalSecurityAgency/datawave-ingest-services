@@ -6,9 +6,9 @@
         <artifactId>datawave-microservice-service-parent</artifactId>
         <version>2.1-SNAPSHOT</version>
     </parent>
-    <artifactId>bundler-service</artifactId>
+    <artifactId>feeder-service</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <description>DATAWAVE Ingest Bundler</description>
+    <description>DATAWAVE Feeder</description>
     <url>https://code.nsa.gov/datawave-ingest-service</url>
     <scm>
         <connection>scm:git:https://github.com/NationalSecurityAgency/datawave-ingest-service.git</connection>

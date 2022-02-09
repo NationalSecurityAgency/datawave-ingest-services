@@ -68,3 +68,7 @@ cd <mapreduce.output.fileoutputformat.outputdir>
 ls
 
 each processed file should apear here
+
+
+# posting to the rabbitmq topic
+curl --request POST --user guest:guest --data '{"properties":{},"routing_key":"key001","payload":"Hello World","payload_encoding":"string"}'  localhost:15672/api/exchanges/%2f/ingest/publish

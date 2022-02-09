@@ -13,6 +13,8 @@
     <modules>
         <module>service</module>
         <module>bundler</module>
+        <module>feeder</module>
+        <module>common</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/NationalSecurityAgency/datawave-ingest-service.git</connection>
