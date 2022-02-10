@@ -1,44 +1,17 @@
 package datawave.microservice.bundler.configuration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-
 @Validated
-@EnableConfigurationProperties(BundlerProperties.class)
 @ConfigurationProperties(prefix = "bundler")
 public class BundlerProperties {
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-    
-    private List<String> fsConfigResources;
-    private String inputDir;
     private String workDir;
-    private String outputDir;
-    private long maxAge;
-    private long maxFiles;
-    private long maxSize;
-    private long scanFrequency;
+    private String bundleOutputDir;
     
-    public List<String> getFsConfigResources() {
-        return fsConfigResources;
-    }
-    
-    public void setFsConfigResources(List<String> fsConfigResources) {
-        this.fsConfigResources = fsConfigResources;
-        log.info("Got resources: " + fsConfigResources);
-    }
-    
-    public String getInputDir() {
-        return inputDir;
-    }
-    
-    public void setInputDir(String inputDir) {
-        this.inputDir = inputDir;
-    }
+    private boolean preservePath;
+    private String manifestPathRoot;
+    private String manifestOutputDir;
     
     public String getWorkDir() {
         return workDir;
@@ -48,43 +21,35 @@ public class BundlerProperties {
         this.workDir = workDir;
     }
     
-    public String getOutputDir() {
-        return outputDir;
+    public String getBundleOutputDir() {
+        return bundleOutputDir;
     }
     
-    public void setOutputDir(String outputDir) {
-        this.outputDir = outputDir;
+    public void setBundleOutputDir(String bundleOutputDir) {
+        this.bundleOutputDir = bundleOutputDir;
     }
     
-    public long getMaxAge() {
-        return maxAge;
+    public String getManifestOutputDir() {
+        return manifestOutputDir;
     }
     
-    public void setMaxAge(long maxAge) {
-        this.maxAge = maxAge;
+    public void setManifestOutputDir(String manifestOutputDir) {
+        this.manifestOutputDir = manifestOutputDir;
     }
     
-    public long getMaxFiles() {
-        return maxFiles;
+    public String getManifestPathRoot() {
+        return manifestPathRoot;
     }
     
-    public void setMaxFiles(long maxFiles) {
-        this.maxFiles = maxFiles;
+    public void setManifestPathRoot(String manifestPathRoot) {
+        this.manifestPathRoot = manifestPathRoot;
     }
     
-    public long getMaxSize() {
-        return maxSize;
+    public boolean isPreservePath() {
+        return preservePath;
     }
     
-    public void setMaxSize(long maxSize) {
-        this.maxSize = maxSize;
-    }
-    
-    public long getScanFrequency() {
-        return scanFrequency;
-    }
-    
-    public void setScanFrequency(long scanFrequency) {
-        this.scanFrequency = scanFrequency;
+    public void setPreservePath(boolean preservePath) {
+        this.preservePath = preservePath;
     }
 }

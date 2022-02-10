@@ -43,6 +43,7 @@ public class FeederFileScanner extends FileScanner {
         super.scanFiles();
     }
     
+    @Override
     protected void process() throws IOException {
         Path targetDir = new Path(feederProperties.getTargetDir());
         final org.apache.hadoop.conf.Configuration conf = getConf();

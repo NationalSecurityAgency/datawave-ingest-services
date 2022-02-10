@@ -18,10 +18,4 @@ public class BundlerService {
     public static void main(String[] args) {
         SpringApplication.run(BundlerService.class, args);
     }
-    
-    @Bean
-    public void test() {
-        log.warn("created test bean");
-    }
-    
 }

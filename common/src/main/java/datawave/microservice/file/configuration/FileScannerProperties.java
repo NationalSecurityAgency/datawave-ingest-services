@@ -1,13 +1,11 @@
 package datawave.microservice.file.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Validated
-@EnableConfigurationProperties(FileScannerProperties.class)
 @ConfigurationProperties(prefix = "file")
 public class FileScannerProperties {
     private List<String> fsConfigResources;
@@ -15,8 +13,6 @@ public class FileScannerProperties {
     private String inputDir;
     
     private String ignorePrefix;
-    private String ignorePostfix;
-    
     private long maxAge;
     private long maxFiles;
     private long maxSize;
@@ -61,14 +57,6 @@ public class FileScannerProperties {
     
     public void setIgnorePrefix(String ignorePrefix) {
         this.ignorePrefix = ignorePrefix;
-    }
-    
-    public String getIgnorePostfix() {
-        return ignorePostfix;
-    }
-    
-    public void setIgnorePostfix(String ignorePostfix) {
-        this.ignorePostfix = ignorePostfix;
     }
     
     public List<String> getFsConfigResources() {

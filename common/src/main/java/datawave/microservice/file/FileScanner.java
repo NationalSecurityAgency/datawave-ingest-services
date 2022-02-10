@@ -5,12 +5,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -58,34 +52,31 @@ public class FileScanner {
                     continue;
                 }
                 
-                // skip filtered files
-                if (properties.getIgnorePostfix() == null || !fileStatus.getPath().toString().endsWith(properties.getIgnorePostfix())) {
-                    if (!preCheck(fileStatus)) {
-                        log.info("File: " + fileStatus.getPath().toString() + " failed precheck");
-                        continue;
+                if (!preCheck(fileStatus)) {
+                    log.info("File: " + fileStatus.getPath().toString() + " failed precheck");
+                    continue;
+                }
+                
+                // add the file and its manifest
+                activeCount += addFiles(fileStatus);
+                
+                // only check if we care
+                if (maxSize > -1) {
+                    workingSize += fileStatus.getLen();
+                }
+                
+                // test for file age
+                if (maxAge > -1) {
+                    long fileDate = fileStatus.getModificationTime();
+                    if (System.currentTimeMillis() - fileDate > maxAge) {
+                        exceededAge = true;
+                        log.info("Exceeded age limit of : " + maxAge);
                     }
-                    
-                    // add the file and its manifest
-                    activeCount += addFiles(fileStatus);
-                    
-                    // only check if we care
-                    if (maxSize > -1) {
-                        workingSize += fileStatus.getLen();
-                    }
-                    
-                    // test for file age
-                    if (maxAge > -1) {
-                        long fileDate = fileStatus.getModificationTime();
-                        if (System.currentTimeMillis() - fileDate > maxAge) {
-                            exceededAge = true;
-                            log.info("Exceeded age limit of : " + maxAge);
-                        }
-                    }
-                    
-                    if (maxSize > -1 && workingSize >= maxSize) {
-                        exceededSize = true;
-                        log.info("Exceeded size limit at : " + workingSize);
-                    }
+                }
+                
+                if (maxSize > -1 && workingSize >= maxSize) {
+                    exceededSize = true;
+                    log.info("Exceeded size limit at : " + workingSize);
                 }
             }
             

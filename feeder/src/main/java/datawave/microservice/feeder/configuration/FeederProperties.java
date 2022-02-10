@@ -1,12 +1,9 @@
 package datawave.microservice.feeder.configuration;
 
-import datawave.microservice.file.configuration.FileScannerProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
-@EnableConfigurationProperties(FileScannerProperties.class)
 @ConfigurationProperties(prefix = "feeder")
 public class FeederProperties {
     private String targetDir;
