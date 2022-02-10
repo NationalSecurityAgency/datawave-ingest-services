@@ -1,10 +1,12 @@
 package datawave.microservice.file;
 
 import datawave.microservice.file.configuration.FileScannerProperties;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,18 +15,20 @@ import java.util.List;
 public class FileScanner {
     protected Logger log = LoggerFactory.getLogger(this.getClass());
     
+    protected Configuration conf;
     protected FileScannerProperties properties;
     
-    public FileScanner(FileScannerProperties properties) {
+    public FileScanner(Configuration conf, FileScannerProperties properties) {
+        this.conf = conf;
         this.properties = properties;
     }
     
     protected List<Path> workingFiles = new ArrayList<>();
     
+    @Scheduled(fixedRateString = "${file.frequency:5000}")
     public void scanFiles() {
         log.warn("Scanning files! " + properties.getInputDir());
         try {
-            org.apache.hadoop.conf.Configuration conf = getConf();
             Path inputDir = new Path(properties.getInputDir());
             
             FileSystem fs = FileSystem.get(inputDir.toUri(), conf);
@@ -116,24 +120,5 @@ public class FileScanner {
      */
     protected boolean preCheck(FileStatus toCheck) {
         return true;
-    }
-    
-    /**
-     * fsConfigResources are applied in the order they are configured. Duplicate properties will be overridden by the last appearance
-     *
-     * @return
-     */
-    public org.apache.hadoop.conf.Configuration getConf() {
-        org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
-        if (properties != null) {
-            for (String fsConfigResource : properties.getFsConfigResources()) {
-                conf.addResource(new Path(fsConfigResource));
-                log.info("Added resource: " + fsConfigResource);
-            }
-        } else {
-            log.warn("Properties null!");
-        }
-        
-        return conf;
     }
 }

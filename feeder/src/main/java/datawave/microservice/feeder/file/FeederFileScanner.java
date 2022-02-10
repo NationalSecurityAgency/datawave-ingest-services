@@ -6,13 +6,13 @@ import datawave.microservice.feeder.configuration.FeederProperties;
 import datawave.microservice.feeder.messaging.MessageSupplier;
 import datawave.microservice.file.FileScanner;
 import datawave.microservice.file.configuration.FileScannerProperties;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -21,32 +21,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Configuration
-@EnableConfigurationProperties(FeederProperties.class)
 @Component
 public class FeederFileScanner extends FileScanner {
-    
-    @Autowired
-    private FeederProperties feederProperties;
-    
+    private final FeederProperties feederProperties;
     private final MessageSupplier feedSource;
     
-    private Pattern pathPattern;
-    
-    public FeederFileScanner(@Autowired FileScannerProperties properties, @Autowired MessageSupplier feedSource) {
-        super(properties);
+    @Autowired
+    public FeederFileScanner(Configuration conf, FileScannerProperties fileScannerProperties, FeederProperties feederProperties, MessageSupplier feedSource) {
+        super(conf, fileScannerProperties);
+        this.feederProperties = feederProperties;
         this.feedSource = feedSource;
-    }
-    
-    @Scheduled(fixedRate = 5000)
-    public void scanFiles() {
-        super.scanFiles();
     }
     
     @Override
     protected void process() throws IOException {
         Path targetDir = new Path(feederProperties.getTargetDir());
-        final org.apache.hadoop.conf.Configuration conf = getConf();
         List<Path> processedFiles = new ArrayList<>(workingFiles.size());
         try {
             for (Path workingFile : workingFiles) {
@@ -96,11 +85,5 @@ public class FeederFileScanner extends FileScanner {
     
     protected boolean preCheck(FileStatus toCheck) {
         return true;
-    }
-    
-    @Override
-    @Bean
-    public org.apache.hadoop.conf.Configuration getConf() {
-        return super.getConf();
     }
 }

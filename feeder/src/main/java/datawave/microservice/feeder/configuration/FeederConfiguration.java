@@ -1,10 +1,8 @@
-package datawave.microservice.bundler.configuration;
+package datawave.microservice.feeder.configuration;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(BundlerProperties.class)
-public class BundlerConfiguration {
-    
-}
+@EnableConfigurationProperties(FeederProperties.class)
+public class FeederConfiguration {}

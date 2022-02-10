@@ -25,8 +25,7 @@ import java.util.UUID;
  */
 @Component
 public class BundleFileScanner extends FileScanner {
-    private Configuration conf;
-    private BundlerProperties bundlerProperties;
+    private final BundlerProperties bundlerProperties;
     
     protected List<Path> workingManifests = new ArrayList<>();
     private FileSystem inputFs;
@@ -36,9 +35,8 @@ public class BundleFileScanner extends FileScanner {
     private Path bundleOutputDir;
     
     @Autowired
-    public BundleFileScanner(Configuration conf, BundlerProperties bundlerProperties, FileScannerProperties fileScannerProperties) {
-        super(fileScannerProperties);
-        this.conf = conf;
+    public BundleFileScanner(Configuration conf, FileScannerProperties fileScannerProperties, BundlerProperties bundlerProperties) {
+        super(conf, fileScannerProperties);
         this.bundlerProperties = bundlerProperties;
         
         inputDir = new Path(properties.getInputDir());
@@ -86,11 +84,6 @@ public class BundleFileScanner extends FileScanner {
     @Override
     protected boolean preCheck(FileStatus fileStatus) {
         return !fileStatus.getPath().toString().endsWith(".manifest");
-    }
-    
-    @Scheduled(fixedRateString = "${bundler.frequency:5000}")
-    public void scanFiles() {
-        super.scanFiles();
     }
     
     @Override
