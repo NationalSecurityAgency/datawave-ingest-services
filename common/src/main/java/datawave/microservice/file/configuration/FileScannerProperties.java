@@ -3,21 +3,25 @@ package datawave.microservice.file.configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
+/**
+ * Properties to be used with the FileScanner
+ */
 @Validated
 @ConfigurationProperties(prefix = "file")
 public class FileScannerProperties {
     private List<String> fsConfigResources;
     
+    @NotNull
     private String inputDir;
     
     private String ignorePrefix;
-    private long maxAge;
-    private long maxFiles;
-    private long maxSize;
-    
-    private boolean recursive;
+    private long maxAge = -1;
+    private long maxFiles = -1;
+    private long maxSize = -1;
+    private boolean recursive = false;
     
     public String getInputDir() {
         return inputDir;

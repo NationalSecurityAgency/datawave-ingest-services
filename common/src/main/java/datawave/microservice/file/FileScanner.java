@@ -12,6 +12,14 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base implementation to scan a directory and process found files based on maxFiles, maxSize, and maxAge.
+ * <p>
+ * inputFiles - the path to scan for files ignorePrefix - if specified files starting with ignorePrefix won't be processed maxFiles - if greater than -1 will
+ * cap the number of files per scanFiles to maxFiles, unlimited otherwise maxSize - if greater than -1 max size of aggregated files to process per scanFiles
+ * iteration, unlimited otherwise maxAge - if greater than -1 max age of a file before encountering it will trigger an immediate end scan, unlimited otherwise
+ * </p>
+ */
 public class FileScanner {
     protected Logger log = LoggerFactory.getLogger(this.getClass());
     
@@ -48,8 +56,9 @@ public class FileScanner {
             
             boolean exceededAge = false;
             boolean exceededSize = false;
+            boolean exceededFileCount = false;
             
-            while (activeCount < maxFiles && files.hasNext() && !exceededSize) {
+            while (!exceededFileCount && files.hasNext() && !exceededSize) {
                 LocatedFileStatus fileStatus = files.next();
                 // skip . files
                 if (fileStatus.getPath().getName().startsWith(properties.getIgnorePrefix())) {
@@ -63,6 +72,10 @@ public class FileScanner {
                 
                 // add the file and its manifest
                 activeCount += addFiles(fileStatus);
+                
+                if (maxFiles > -1 && activeCount >= maxFiles) {
+                    exceededFileCount = true;
+                }
                 
                 // only check if we care
                 if (maxSize > -1) {
@@ -90,6 +103,7 @@ public class FileScanner {
             if (activeCount >= maxFiles || exceededAge || exceededSize) {
                 log.info("hit threshold, processing files");
                 process();
+                cleanup();
             }
         } catch (IOException e) {
             log.error("failed to process files", e);
@@ -97,12 +111,20 @@ public class FileScanner {
     }
     
     /**
-     * Process all files, is responsible for cleaning up any processed files from workingFiles
+     * Process all files
      * 
      * @throws IOException
      */
     protected void process() throws IOException {
         throw new UnsupportedOperationException("should be implemented in subclass");
+    }
+
+    /**
+     * Cleanup associated with processing a set of working files
+     * @throws IOException
+     */
+    protected void cleanup() throws IOException {
+        workingFiles.clear();
     }
     
     protected int addFiles(FileStatus fileStatus) {

@@ -87,20 +87,18 @@ public class BundleFileScanner extends FileScanner {
     
     @Override
     protected void process() throws IOException {
-        try {
-            log.info("combining");
-            String uuid = combine(workDir, workingFiles);
-            log.info("moving");
-            move(outputFs, workDir, bundleOutputDir, uuid);
-            log.info("cleanup");
-            cleanup(inputFs, workingFiles, workingManifests);
-        } catch (Throwable e) {
-            throw e;
-        } finally {
-            // cleanup working files
-            workingFiles.clear();
-            workingManifests.clear();
-        }
+        log.info("combining");
+        String uuid = combine(workDir, workingFiles);
+        log.info("moving");
+        move(outputFs, workDir, bundleOutputDir, uuid);
+        log.info("cleanup");
+        cleanup(inputFs, workingFiles, workingManifests);
+    }
+    
+    @Override
+    protected void cleanup() throws IOException {
+        super.cleanup();
+        workingManifests.clear();
     }
     
     /**

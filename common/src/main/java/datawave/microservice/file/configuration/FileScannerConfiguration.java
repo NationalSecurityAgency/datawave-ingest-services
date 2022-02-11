@@ -6,6 +6,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Expose the FileScannerProperties for auto wiring and create a 'conf' Configuration bean
+ */
 @Configuration
 @EnableConfigurationProperties(FileScannerProperties.class)
 public class FileScannerConfiguration {
