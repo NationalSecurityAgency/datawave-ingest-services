@@ -1,7 +1,5 @@
 package datawave.microservice.feeder.file;
 
-import com.google.re2j.Matcher;
-import com.google.re2j.Pattern;
 import datawave.microservice.feeder.configuration.FeederProperties;
 import datawave.microservice.feeder.messaging.MessageSupplier;
 import datawave.microservice.file.FileScanner;
@@ -11,10 +9,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
