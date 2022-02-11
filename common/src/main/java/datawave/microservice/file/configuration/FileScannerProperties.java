@@ -13,15 +13,15 @@ import java.util.List;
 @ConfigurationProperties(prefix = "file")
 public class FileScannerProperties {
     private List<String> fsConfigResources;
-    
     @NotNull
     private String inputDir;
-    
     private String ignorePrefix;
     private long maxAge = -1;
     private long maxFiles = -1;
     private long maxSize = -1;
     private boolean recursive = false;
+    private long errorRetryInterval = 60000;
+    private String errorRetryTimeUnit = "MILLISECONDS";
     
     public String getInputDir() {
         return inputDir;
@@ -77,5 +77,21 @@ public class FileScannerProperties {
     
     public void setRecursive(boolean recursive) {
         this.recursive = recursive;
+    }
+    
+    public long getErrorRetryInterval() {
+        return errorRetryInterval;
+    }
+    
+    public void setErrorRetryInterval(long errorRetryInterval) {
+        this.errorRetryInterval = errorRetryInterval;
+    }
+    
+    public String getErrorRetryTimeUnit() {
+        return errorRetryTimeUnit;
+    }
+    
+    public void setErrorRetryTimeUnit(String errorRetryTimeUnit) {
+        this.errorRetryTimeUnit = errorRetryTimeUnit;
     }
 }

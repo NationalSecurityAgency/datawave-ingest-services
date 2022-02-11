@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+/**
+ * Feeder's job is to monitor a directory for new files, move those new files to processing directory, and send a message to the rabbitmq exchange
+ */
 @EnableDiscoveryClient
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = "datawave.microservice", exclude = {ErrorMvcAutoConfiguration.class})

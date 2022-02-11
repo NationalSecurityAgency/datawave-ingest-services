@@ -1,5 +1,7 @@
 package datawave.microservice.file;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import datawave.microservice.file.configuration.FileScannerProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -11,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base implementation to scan a directory and process found files based on maxFiles, maxSize, and maxAge.
@@ -20,15 +23,20 @@ import java.util.List;
  * iteration, unlimited otherwise maxAge - if greater than -1 max age of a file before encountering it will trigger an immediate end scan, unlimited otherwise
  * </p>
  */
-public class FileScanner {
+public abstract class FileScanner {
     protected Logger log = LoggerFactory.getLogger(this.getClass());
     
     protected Configuration conf;
     protected FileScannerProperties properties;
     
+    private Cache<String,Boolean> failureCache;
+    
     public FileScanner(Configuration conf, FileScannerProperties properties) {
         this.conf = conf;
         this.properties = properties;
+        
+        failureCache = CacheBuilder.newBuilder().expireAfterWrite(properties.getErrorRetryInterval(), TimeUnit.valueOf(properties.getErrorRetryTimeUnit()))
+                        .build();
     }
     
     protected List<Path> workingFiles = new ArrayList<>();
@@ -60,7 +68,14 @@ public class FileScanner {
             
             while (!exceededFileCount && files.hasNext() && !exceededSize) {
                 LocatedFileStatus fileStatus = files.next();
-                // skip . files
+                
+                // always test against the failure cache first, if it is still in the cache, skip it
+                if (failureCache.getIfPresent(fileStatus.getPath().toString()) != null) {
+                    log.debug("Skipping cached failed file: " + fileStatus.getPath());
+                    continue;
+                }
+                
+                // skip files that should be ignored
                 if (fileStatus.getPath().getName().startsWith(properties.getIgnorePrefix())) {
                     continue;
                 }
@@ -103,7 +118,6 @@ public class FileScanner {
             if (activeCount >= maxFiles || exceededAge || exceededSize) {
                 log.info("hit threshold, processing files");
                 process();
-                cleanup();
             }
         } catch (IOException e) {
             log.error("failed to process files", e);
@@ -111,16 +125,44 @@ public class FileScanner {
     }
     
     /**
-     * Process all files
+     * Process all files, any that fail to process should be added to the failure cache
      * 
      * @throws IOException
      */
     protected void process() throws IOException {
-        throw new UnsupportedOperationException("should be implemented in subclass");
+        for (Path workingFile : workingFiles) {
+            try {
+                process(workingFile);
+            } catch (Throwable t) {
+                // put the workingFile in the failure queue and go again
+                processFailure(workingFile);
+                throw t;
+            } finally {
+                cleanup(workingFile);
+            }
+        }
     }
-
+    
+    /**
+     * Add a Path to the failure cache to prevent this file from being reprocessed until it expires from the cache
+     * 
+     * @param workingFile
+     */
+    protected void processFailure(Path workingFile) {
+        failureCache.put(workingFile.toString(), true);
+    }
+    
+    protected void process(Path workingFile) throws IOException {
+        // no-op
+    }
+    
+    protected void cleanup(Path workingFile) {
+        workingFiles.remove(workingFile);
+    }
+    
     /**
      * Cleanup associated with processing a set of working files
+     * 
      * @throws IOException
      */
     protected void cleanup() throws IOException {

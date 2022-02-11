@@ -85,6 +85,11 @@ public class BundleFileScanner extends FileScanner {
         return !fileStatus.getPath().toString().endsWith(".manifest");
     }
     
+    /**
+     * Combine all workingFiles into a single SequenceFile, move it to the target directory, and move all manifest referenced files to their target directory
+     * 
+     * @throws IOException
+     */
     @Override
     protected void process() throws IOException {
         log.info("combining");
