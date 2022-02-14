@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +34,7 @@ public class BundleFileScanner extends FileScanner {
     private Path inputDir;
     private Path workDir;
     private Path bundleOutputDir;
+    private SimpleDateFormat bundleDateFormat = null;
     
     @Autowired
     public BundleFileScanner(Configuration conf, FileScannerProperties fileScannerProperties, BundlerProperties bundlerProperties) {
@@ -50,6 +53,10 @@ public class BundleFileScanner extends FileScanner {
             outputFs = FileSystem.get(bundleOutputDir.toUri(), conf);
         } catch (IOException e) {
             log.error("Failed to get FileSystem for: " + bundleOutputDir, e);
+        }
+        
+        if (bundlerProperties.isDateBundleOutput()) {
+            bundleDateFormat = new SimpleDateFormat(bundlerProperties.getDateFormat());
         }
     }
     
@@ -95,7 +102,11 @@ public class BundleFileScanner extends FileScanner {
         log.info("combining");
         String uuid = combine(workDir, workingFiles);
         log.info("moving");
-        move(outputFs, workDir, bundleOutputDir, uuid);
+        if (bundleDateFormat != null) {
+            move(outputFs, workDir, new Path(bundleOutputDir, bundleDateFormat.format(new Date())), uuid);
+        } else {
+            move(outputFs, workDir, bundleOutputDir, uuid);
+        }
         log.info("cleanup");
         cleanup(inputFs, workingFiles, workingManifests);
     }
