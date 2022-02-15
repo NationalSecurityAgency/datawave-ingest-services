@@ -228,7 +228,8 @@ public class BundleFileScanner extends FileScanner {
                     String origFile = splits[1];
                     
                     Path origFilePath = new Path(origFile);
-                    Path targetFilePath = new Path(origFile.replace("/flagged/", "/loaded/"));
+                    Path targetFilePath = new Path(
+                                    origFile.replace(bundlerProperties.getManifestPathToReplace(), bundlerProperties.getManifestPathReplacement()));
                     Path targetDir = targetFilePath.getParent();
                     
                     // use the FS from wherever the original file came from
@@ -244,34 +245,6 @@ public class BundleFileScanner extends FileScanner {
                     if (!destFs.rename(origFilePath, targetFilePath)) {
                         log.warn("Failed to move orig file: " + origFilePath + " to " + targetFilePath);
                     }
-                    
-                    // Path targetPath = new Path(bundlerProperties.getManifestOutputDir());
-                    // if (bundlerProperties.isPreservePath()) {
-                    // int startIndex = origFilePath.toString().indexOf(bundlerProperties.getManifestPathRoot());
-                    // int endIndex = startIndex + bundlerProperties.getManifestPathRoot().length();
-                    //
-                    // // only adjust pathing if the root path exists in the original
-                    // if (startIndex > -1) {
-                    // String preservePath = workingManifest.toString().substring(startIndex, endIndex + 1);
-                    // targetPath = new Path(targetPath, preservePath);
-                    // }
-                    // }
-                    //
-                    // // use the FS from wherever the original file came from
-                    // FileSystem destFs = FileSystem.get(origFilePath.toUri(), conf);
-                    //
-                    // // make sure target path exists or can be created
-                    // if (!destFs.exists(targetPath)) {
-                    // if (!destFs.mkdirs(targetPath)) {
-                    // log.warn("Failed to create " + targetPath);
-                    // throw new IOException("Failed to create " + targetPath);
-                    // }
-                    // }
-                    //
-                    // // move the file
-                    // if (!destFs.rename(origFilePath, targetPath)) {
-                    // log.warn("Failed to move orig file: " + origFilePath + " to " + targetPath);
-                    // }
                 }
                 
                 // now cleanup the manifest file

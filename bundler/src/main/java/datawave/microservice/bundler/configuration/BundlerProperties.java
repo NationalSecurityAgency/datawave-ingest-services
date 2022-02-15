@@ -10,8 +10,8 @@ public class BundlerProperties {
     private String bundleOutputDir;
     private boolean dateBundleOutput = true;
     private String dateFormat = "yyyy/MM/dd";
-    
-    private boolean preservePath;
+    private String manifestPathToReplace = "/flagged/";
+    private String manifestPathReplacement = "/loaded/";
     
     public String getWorkDir() {
         return workDir;
@@ -29,14 +29,6 @@ public class BundlerProperties {
         this.bundleOutputDir = bundleOutputDir;
     }
     
-    public boolean isPreservePath() {
-        return preservePath;
-    }
-    
-    public void setPreservePath(boolean preservePath) {
-        this.preservePath = preservePath;
-    }
-    
     public boolean isDateBundleOutput() {
         return dateBundleOutput;
     }
@@ -51,5 +43,21 @@ public class BundlerProperties {
     
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+    }
+    
+    public String getManifestPathToReplace() {
+        return manifestPathToReplace;
+    }
+    
+    public void setManifestPathToReplace(String manifestPathToReplace) {
+        this.manifestPathToReplace = manifestPathToReplace;
+    }
+    
+    public String getManifestPathReplacement() {
+        return manifestPathReplacement;
+    }
+    
+    public void setManifestPathReplacement(String manifestPathReplacement) {
+        this.manifestPathReplacement = manifestPathReplacement;
     }
 }
