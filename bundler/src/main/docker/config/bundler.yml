@@ -1,0 +1,19 @@
+logging:
+  level:
+    datawave.microservice.ingest: DEBUG
+
+file:
+  frequency: 60000
+  recursive: false
+  inputDir: /tmp/datawave/ingest/work
+  ignorePrefix: '.'
+  maxFiles: 1
+  maxAge: 60000
+  maxSize: 1000000000
+  fsConfigResources:
+    - /etc/hadoop/conf/hdfs-site.xml
+    - /etc/hadoop/conf/core-site.xml
+
+bundler:
+  workDir: /tmp/datawave/bundler/work
+  bundleOutputDir: hdfs://192.168.122.1:9000/data/input/csvSeq/

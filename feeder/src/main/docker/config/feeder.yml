@@ -1,0 +1,35 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+        feedSource-out-0:
+          destination: 'ingest'
+          producer:
+            errorChannelEnabled: false
+
+    # NOTE: When defining your functions, be sure to include busConsumer, or else spring cloud bus will not work
+    function:
+      definition: feedSource;busConsumer
+
+logging:
+  level:
+    datawave.microservice.ingest: DEBUG
+
+file:
+  frequency: 1000
+  recursive: true
+  inputDir: 'hdfs://192.168.122.1:9000/data/input/csv'
+  ignorePrefix: '.'
+  maxFiles: 1
+  fsConfigResources:
+    - /etc/hadoop/conf/hdfs-site.xml
+    - /etc/hadoop/conf/core-site.xml
+
+feeder:
+  targetDir: 'hdfs://192.168.122.1:9000/data/input/flagged/csv'
+  inputFormatClass: 'datawave.ingest.csv.mr.input.CSVFileInputFormat'
+  dataType: 'mycsv'
+  # /YYYY/MM/DD/
+  preservePath: true
+  errorRetryInterval: 60
+  errorRetryTimeUnit: SECONDS
