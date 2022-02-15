@@ -1,5 +1,7 @@
 .idea
-service/target
+.iml
+*/.iml
+ingest/target
 bundler/target
 feeder/target
 common/target

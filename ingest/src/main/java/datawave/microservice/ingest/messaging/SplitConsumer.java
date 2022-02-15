@@ -33,7 +33,6 @@ import java.util.function.Consumer;
 
 @Configuration
 @EnableConfigurationProperties(IngestProperties.class)
-
 public class SplitConsumer {
     private Logger log = LoggerFactory.getLogger(this.getClass());
     

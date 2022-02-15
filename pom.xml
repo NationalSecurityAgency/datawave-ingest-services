@@ -11,7 +11,7 @@
     <packaging>pom</packaging>
     <url>https://code.nsa.gov/datawave-ingest-service</url>
     <modules>
-        <module>service</module>
+        <module>ingest</module>
         <module>bundler</module>
         <module>feeder</module>
         <module>common</module>
