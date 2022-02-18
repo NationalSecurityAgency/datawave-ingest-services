@@ -148,7 +148,11 @@ public class BundleFileScanner extends FileScanner {
                 while (reader.next(key, value)) {
                     writer.append(key, value);
                 }
-            } catch (IOException | IllegalAccessException | InstantiationException e) {
+            } catch (IOException e) {
+                // prevent this file from coming up again for a bit
+                processFailure(workingFile);
+                throw new RuntimeException("Failed to merge sequence file: " + workingFile, e);
+            } catch (IllegalAccessException | InstantiationException e) {
                 throw new RuntimeException("Failed to merge sequence file: " + workingFile, e);
             } finally {
                 if (reader != null) {
