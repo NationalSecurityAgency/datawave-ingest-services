@@ -121,22 +121,30 @@ public abstract class FileScanner {
             }
         } catch (IOException e) {
             log.error("failed to process files", e);
+        } finally {
+            try {
+                cleanup();
+            } catch (IOException e) {
+                log.warn("Failed to cleanup working files", e);
+            }
         }
     }
     
     /**
-     * Process all files, any that fail to process should be added to the failure cache
+     * Process all files, any that fail to process should be added to the failure cache, but not prevent processing other files
      * 
      * @throws IOException
      */
     protected void process() throws IOException {
-        for (Path workingFile : workingFiles) {
+        // make a copy so cleanup can happen within the loop
+        List<Path> toProcess = new ArrayList<>(workingFiles);
+        for (Path workingFile : toProcess) {
             try {
                 process(workingFile);
             } catch (Throwable t) {
                 // put the workingFile in the failure queue and go again
                 processFailure(workingFile);
-                throw t;
+                log.warn("Failed to process file: " + workingFile, t);
             } finally {
                 cleanup(workingFile);
             }
@@ -151,11 +159,20 @@ public abstract class FileScanner {
     protected void processFailure(Path workingFile) {
         failureCache.put(workingFile.toString(), true);
     }
-    
+
+    /**
+     * Process an individual file
+     * @param workingFile
+     * @throws IOException
+     */
     protected void process(Path workingFile) throws IOException {
         // no-op
     }
-    
+
+    /**
+     * Cleanup after processing a workingFile
+     * @param workingFile
+     */
     protected void cleanup(Path workingFile) {
         workingFiles.remove(workingFile);
     }
@@ -168,7 +185,12 @@ public abstract class FileScanner {
     protected void cleanup() throws IOException {
         workingFiles.clear();
     }
-    
+
+    /**
+     * Add a file for processing
+     * @param fileStatus
+     * @return number of files added for processing
+     */
     protected int addFiles(FileStatus fileStatus) {
         workingFiles.add(fileStatus.getPath());
         log.debug("Added " + fileStatus.getPath() + " to working files");

@@ -63,8 +63,15 @@ public class FeederFileScanner extends FileScanner {
         }
         
         if (fs.rename(workingFile, fileTarget)) {
-            feedSource.send(MessageBuilder.withPayload(fileTarget + "," + feederProperties.getInputFormatClass() + "," + feederProperties.getDataType())
-                            .build());
+            while (!feedSource.send(MessageBuilder.withPayload(fileTarget + "," + feederProperties.getInputFormatClass() + "," + feederProperties.getDataType())
+                            .build())) {
+                try {
+                    // TODO configurable?
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    // no-op
+                }
+            }
         } else {
             log.warn("Failed to rename " + workingFile + " to " + fileTarget);
             throw new IOException("Failed to rename " + workingFile + " to " + fileTarget);
