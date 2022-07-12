@@ -37,13 +37,36 @@ TODO
 
 Building:
 # build datawave 3.10.1
+```bash
+git clone git@github.com:NationalSecurityAgency/datawave.git
+cd datawave
+git checkout 3.10.1
 mvn clean install -DskipTests
+```
+
+# checkout and build microservices (required for version.microservice.starter being a SNAPSHOT)
+```bash
+# This will checkout the feature/queryMicroservices branch for all of the submodules.
+# By default, the submodules will all be in a detached head state.
+git clone --recurse-submodules git@github.com:NationalSecurityAgency/datawave.git --branch feature/queryMicroservices datawave-query-microservices
+
+# Checkout the feature/queryMicroservices branch for each submodule so that we are no longer in a detached head state.
+# The addition of `|| :` will ensure that the command is executed for each submodule, 
+# ignoring failures for submodules that don't have a feature/queryMicroservices branch.
+cd datawave-query-microservices
+git submodule foreach 'git checkout feature/queryMicroservices || :'
+
+mvn -Pdocker,dist clean install
+```
 
 # build the datawave-ingest-service
+```bash
+cd datawave-ingest-service
 mvn clean install -Pdocker
-
+```
 
 Launching:
+```bash
 # start docker
 sudo systemctl start docker
 
@@ -81,8 +104,8 @@ docker exec -it <instance-id> bash
 cd <mapreduce.output.fileoutputformat.outputdir>
 ls
 
-each processed file should apear here
-
+#<each processed file should apear here>
 
 # posting to the rabbitmq topic
 curl --request POST --user guest:guest --data '{"properties":{},"routing_key":"key001","payload":"Hello World","payload_encoding":"string"}'  localhost:15672/api/exchanges/%2f/ingest/publish
+```

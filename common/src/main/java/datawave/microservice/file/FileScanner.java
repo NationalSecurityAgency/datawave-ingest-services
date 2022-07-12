@@ -159,18 +159,20 @@ public abstract class FileScanner {
     protected void processFailure(Path workingFile) {
         failureCache.put(workingFile.toString(), true);
     }
-
+    
     /**
      * Process an individual file
+     * 
      * @param workingFile
      * @throws IOException
      */
     protected void process(Path workingFile) throws IOException {
         // no-op
     }
-
+    
     /**
      * Cleanup after processing a workingFile
+     * 
      * @param workingFile
      */
     protected void cleanup(Path workingFile) {
@@ -185,9 +187,10 @@ public abstract class FileScanner {
     protected void cleanup() throws IOException {
         workingFiles.clear();
     }
-
+    
     /**
      * Add a file for processing
+     * 
      * @param fileStatus
      * @return number of files added for processing
      */
