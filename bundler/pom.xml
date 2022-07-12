@@ -21,7 +21,7 @@
         <version.guava>25.1-jre</version.guava>
         <version.hadoop>3.0.3</version.hadoop>
         <version.microservice.ingest.common>1.0-SNAPSHOT</version.microservice.ingest.common>
-        <version.microservice.starter>1.6.6-SNAPSHOT</version.microservice.starter>
+        <version.microservice.starter>1.6.8-SNAPSHOT</version.microservice.starter>
     </properties>
     <dependencyManagement>
         <dependencies>
