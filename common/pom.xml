@@ -20,7 +20,7 @@
         <version.datawave>3.10.1</version.datawave>
         <version.guava>25.1-jre</version.guava>
         <version.hadoop>3.0.3</version.hadoop>
-        <version.microservice.starter>1.6.6-SNAPSHOT</version.microservice.starter>
+        <version.microservice.starter>1.6.8-SNAPSHOT</version.microservice.starter>
     </properties>
     <dependencyManagement>
         <dependencies>
