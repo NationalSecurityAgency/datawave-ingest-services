@@ -5,3 +5,4 @@ ingest/target
 bundler/target
 feeder/target
 common/target
+bootstrap/target

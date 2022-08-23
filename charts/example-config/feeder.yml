@@ -4,6 +4,7 @@ spring:
       bindings:
         feedSource-out-0:
           destination: '${DEST_QUEUE}'
+          #destination: 'ingest'
           producer:
             errorChannelEnabled: false
 
@@ -20,7 +21,8 @@ file:
   recursive: true
   inputDir: '/data/input/csv'
   ignorePrefix: '.'
-  maxFiles: 1
+  maxFiles: 2
+  maxAge: 60000
   fsConfigResources:
     - /etc/hadoop/conf/hdfs-site.xml
     - /etc/hadoop/conf/core-site.xml

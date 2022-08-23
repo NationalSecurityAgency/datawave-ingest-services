@@ -17,6 +17,7 @@ import datawave.microservice.ingest.adapter.ManifestOutputFormat;
 import datawave.microservice.ingest.configuration.IngestProperties;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -46,7 +47,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Provides a wrapper for executing DATAWAVE ingest code outside the MapReduce environment. The class will translate the IngestProperties and Hadoop
+ * Configuration to the appropriate MR configuration to execute the EventMapper generating either SequenceFiles or live ingesting directly to Accumulo.
+ */
 public class IngestDriver {
+    /**
+     * When specified overrides the output location, otherwise mapreduce.output.fileoutputformat.outputdir will be used
+     */
+    private static final String OUTPUT_DIR_SYSTEM_PROPERTY = "OUTPUT_DIR";
+    
     private Logger log = LoggerFactory.getLogger(this.getClass());
     private Configuration conf;
     private RecordReader rr;
@@ -109,7 +119,15 @@ public class IngestDriver {
                 outputFormat = new CBMutationOutputFormatter();
             } else {
                 outputFormat = new SequenceFileOutputFormat();
+                
+                // set the output location into the configuration
+                conf.set("mapreduce.output.fileoutputformat.outputdir", System.getenv(OUTPUT_DIR_SYSTEM_PROPERTY),
+                                conf.get("mapreduce.output.fileoutputformat.outputdir"));
             }
+            
+            // always set the key/value output
+            conf.set("mapreduce.job.output.key.class", BulkIngestKey.class.getName());
+            conf.set("mapreduce.job.output.value.class", Value.class.getName());
             
             TaskID taskId = new TaskID(new JobID(uuid, 1234), TaskType.MAP, attempt);
             TaskAttemptID taskAttemptId = new TaskAttemptID(taskId, attempt);

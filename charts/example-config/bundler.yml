@@ -5,7 +5,9 @@ logging:
 file:
   frequency: 60000
   recursive: false
-  inputDir: file:///tmp/datawave/ingest/work
+  #inputDir: /tmp/datawave/ingest/work
+  #inputDir: file:///tmp/datawave/ingest/work
+  inputDir: file:///srv/data/datawave/input/
   ignorePrefix: '.'
   maxFiles: 1
   maxAge: 60000
@@ -15,5 +17,5 @@ file:
     - /etc/hadoop/conf/core-site.xml
 
 bundler:
-  workDir: file:///tmp/datawave/bundler/work
+  workDir: file:///srv/data/datawave/bundler/work
   bundleOutputDir: /data/input/csvSeq/

@@ -1,0 +1,6 @@
+ingest:
+  fsConfigResources:
+    - /etc/hadoop/conf/hdfs-site.xml
+    - /etc/hadoop/conf/core-site.xml
+    - /etc/datawave/conf/
+  liveIngest: false

@@ -1,0 +1,15 @@
+file:
+  frequency: 60000
+  recursive: false
+  inputDir: file:///input/speediest/
+  ignorePrefix: '.'
+  maxFiles: 10
+  maxAge: 120000
+  maxSize: 1000000000
+  fsConfigResources:
+    - /etc/hadoop/conf/hdfs-site.xml
+    - /etc/hadoop/conf/core-site.xml
+
+bundler:
+  workDir: file:///tmp/bundler/speediest/
+  bundleOutputDir: /data/input/pri1

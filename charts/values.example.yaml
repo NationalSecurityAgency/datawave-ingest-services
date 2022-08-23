@@ -1,0 +1,71 @@
+global:
+  services:
+    configuration: datawave-configuration
+    zookeeper: zookeeper
+  volumes:
+    pki:
+      name: pki
+      destination: /data/certs
+      source:
+        type: secret
+        name: datawave-certificates-secret
+    hadoop:
+      name: hadoop
+      destination: /etc/hadoop/conf
+      source:
+        type: configmap
+        name: hadoop-hadoop-minikube
+    logs:
+      name: logs
+      destination: /logs
+      source:
+        type: hostPath
+        path: /srv/logs
+    datawave:
+      name: datawave-conf
+      destination: /etc/datawave/conf
+      source:
+        type: configmap
+        name: datawave-ingest-configmap
+    output:
+      name: output
+      destination: /output
+      prefix: "file://"
+      source:
+        type: hostPath
+        path: /srv/data/datawave/ingest/
+    input:
+      name: input
+      destination: /input
+      source:
+        type: hostPath
+        path: /srv/data/datawave/ingest/
+
+feeder:
+  feeds:
+    - name: "feed1"
+      profile: "minikube,profile1"
+      queue: "fast"
+    - name: "feed2"
+      profile: "minikube,profile2"
+      queue: "fastest"
+    - name: "feed3"
+      profile: "minikube,profile3"
+      queue: "fastest"
+ingest:
+  pools:
+    - name: "speedy"
+      queue: "fast"
+      replicas: 1
+      profiles: "minikube,profile1"
+    - name: "speediest"
+      queue: "fastest"
+      replicas: 1
+      profiles: "minikube,profile2"
+bundler:
+  enabled: true
+  pools:
+    - name: pri1
+      profiles: minikube,pri1
+    - name: pri2
+      profiles: minikube,pri2

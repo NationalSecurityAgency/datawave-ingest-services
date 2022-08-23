@@ -8,8 +8,11 @@ spring:
               autoBindDlq: true
       bindings:
         splitSink-in-0:
+          #destination: 'ingest'
           destination: '${SOURCE_QUEUE}'
           group: 'splits'
+          consumer:
+            concurrency: 2
     # NOTE: When defining your functions, be sure to include busConsumer, or else spring cloud bus will not work
     function:
       definition: splitSink;busConsumer
@@ -26,9 +29,10 @@ ingest:
     - /etc/datawave/conf/csv-ingest-config.xml
     - /etc/datawave/conf/table-config.xml
     - /etc/datawave/conf/mr-config.xml
-  # When liveIngest is true, use accumulo config to perform live ingest, otherwise generate output
+  resourceDirPatterns:
+    - ".*-config.xml"
   liveIngest: true
-  accumulo:
+  accumuloProperties:
     instanceName: ${accumulo.instanceName}
     zookeepers: ${accumulo.zookeepers}
     username: ${accumulo.username}
