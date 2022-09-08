@@ -23,7 +23,10 @@ Hadoop HDFS
 
 
 Setup:
-Under the queryMicroservices branch navigate to query-microservices/docker/ copy all files and directories to another location (eg. /srv/data/datawave/). 
+Setup datawave quickstart, see <datawave-root>/docker/README.MD for details, minimally build quickstart and microservices. Suggest not to run ingest if pairing with this service.
+
+
+Under the queryMicroservices branch navigate to docker/ copy all files and directories to another location (eg. /srv/data/datawave/). 
 Copy from datawave-ingest-service/docker/docker-compose.yml and overwrite the existing file in <working-dir>/query-microservices/docker/
 Copy datawave-ingest-service/docker/config/* to <working-dir>/query-microservices/docker/config/
 
@@ -44,19 +47,27 @@ git checkout 3.10.1
 mvn clean install -DskipTests
 ```
 
-# checkout and build microservices (required for version.microservice.starter being a SNAPSHOT)
+# checkout and build quickstart and microservices (required for version.microservice.starter being a SNAPSHOT and top build quickstart)
 ```bash
 # This will checkout the feature/queryMicroservices branch for all of the submodules.
 # By default, the submodules will all be in a detached head state.
 git clone --recurse-submodules git@github.com:NationalSecurityAgency/datawave.git --branch feature/queryMicroservices datawave-query-microservices
 
+cd datawave-query-microservices
+
+# we need the 3.29.0-SNAPSHOT artifacts prior to the microservice build
+mvn clean install -DskipTests
+
 # Checkout the feature/queryMicroservices branch for each submodule so that we are no longer in a detached head state.
 # The addition of `|| :` will ensure that the command is executed for each submodule, 
 # ignoring failures for submodules that don't have a feature/queryMicroservices branch.
-cd datawave-query-microservices
 git submodule foreach 'git checkout feature/queryMicroservices || :'
 
-mvn -Pdocker,dist clean install
+# docker needs to be started prior to building the microservices
+sudo systemctl start docker
+
+# skipIngest, building quickstart and all microservices
+mvn -Pcompose,docker,quickstart -Ddeploy -Dtar -Ddist -DskipTests -DskipIngest clean install -T1C
 ```
 
 # build the datawave-ingest-service
@@ -65,24 +76,35 @@ cd datawave-ingest-service
 mvn clean install -Pdocker
 ```
 
+Configure Docker compose and environment:
+```bash
+# setup docker-compose for use with ingest-services by overwriting or updating docker-compose.yaml
+# in this example we are overwriting, but can be updated instead
+# this will not just copy over the docker-compose.yaml but also the necessary configs 
+cp -R $WORKING_DIR/datawave-ingest/docker/* $WORKING_DIR/datawave-query-microservices/docker/
+```
+
 Launching:
 ```bash
 # start docker
 sudo systemctl start docker
 
-# start your dfs instance
-$HADOOP_PREFIX/sbin/start-dfs.sh
-
 # navigate to your working-dir for docker compose setup above
-cd $WORKING_DIR/query-microservices/docker/
+cd $WORKING_DIR/datawave-query-microservices/docker/
+
+# run the bootstrap to set env variables
+./bootstrap.sh
 
 # docker compose-up
-docker-compose up
+docker-compose up -d
 
 # check that consol sees the service
 http://localhost:8500/ui/demo_dc/services
 
 # verify ingest is available
+docker-compose logs ingest
+
+docker-compose logs feeder
 
 # check config is available for ingest
 http://localhost:8888/configserver/ingest-default,consul,compose.properties

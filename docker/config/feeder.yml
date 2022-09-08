@@ -18,7 +18,7 @@ logging:
 file:
   frequency: 1000
   recursive: true
-  inputDir: 'hdfs://192.168.122.1:9000/data/input/csv'
+  inputDir: '/data/input/csv'
   ignorePrefix: '.'
   maxFiles: 1
   fsConfigResources:
@@ -26,7 +26,7 @@ file:
     - /etc/hadoop/conf/core-site.xml
 
 feeder:
-  targetDir: 'hdfs://192.168.122.1:9000/data/input/flagged/csv'
+  targetDir: '/data/input/flagged/csv'
   inputFormatClass: 'datawave.ingest.csv.mr.input.CSVFileInputFormat'
   dataType: 'mycsv'
   # /YYYY/MM/DD/
