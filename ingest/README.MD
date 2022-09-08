@@ -24,3 +24,6 @@ spring.cloud.stream.bindings.splitSink-in-0.consumer.maxAttempts - max retries
 spring.cloud.stream.bindings.splitSink-in-0.consumer.concurrency - max concurrent processing threads
 
 When live ingest is disabled, files will be written as SequenceFile<BulkIngestKey,Value> to the specified output directory. Files will be written 1:1 with input files. A corresponding .manifest file will also be written that maintains a mapping from the uuid to the original input name.
+
+environment:
+SOURCE_QUEUE - environment variable, defaults to ingest. May override to set a different queue for ingest

@@ -108,6 +108,9 @@ services:
     # debug port
     # ports:
     #  - "5005:5005"
+    environment:
+      # override the rabbitmq dest with this
+      - DEST_QUEUE=ingest
     volumes:
       - ${PKI_DIR:-./pki}:/etc/pki:ro
       - ./logs:/logs
@@ -132,6 +135,8 @@ services:
       - --spring.cloud.consul.discovery.instance-id=$${spring.application.name}:$${random.value}
     environment:
       - ZOOKEEPER_HOST=${DW_ZOOKEEPER_HOST}
+      # override the rabbitmq source with this
+      - SOURCE_QUEUE=ingest
     # debug port
     # ports:
     #  - "5005:5005"
@@ -140,7 +145,7 @@ services:
       - ./logs:/logs
       - hadoop_conf:/etc/hadoop/conf
       - ./ingest-config:/etc/datawave/conf
-      - ./ingest-work:file:/tmp/datawave/ingest/work
+      - ./ingest-work:/tmp/datawave/ingest/work
     networks:
       - demo
     depends_on:

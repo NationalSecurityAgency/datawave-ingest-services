@@ -8,7 +8,7 @@ spring:
               autoBindDlq: true
       bindings:
         splitSink-in-0:
-          destination: 'ingest'
+          destination: '${SOURCE_QUEUE}'
           group: 'splits'
     # NOTE: When defining your functions, be sure to include busConsumer, or else spring cloud bus will not work
     function:
