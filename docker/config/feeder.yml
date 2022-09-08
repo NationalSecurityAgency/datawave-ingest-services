@@ -3,7 +3,7 @@ spring:
     stream:
       bindings:
         feedSource-out-0:
-          destination: 'ingest'
+          destination: '${DEST_QUEUE}'
           producer:
             errorChannelEnabled: false
 

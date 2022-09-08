@@ -24,3 +24,6 @@ feeder.preservePath - if true, any part of the path beyond the file.inputDir wil
 
 Additional Configuration (Spring Boot)
 spring.cloud.stream.bindings.feedSource-out-0.destination - target exchange for messages
+
+environment:
+DEST_QUEUE - environment variable, defaults to ingest. May override to direct feeder messages to another queue
