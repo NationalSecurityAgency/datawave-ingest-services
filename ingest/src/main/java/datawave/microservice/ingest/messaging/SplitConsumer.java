@@ -1,13 +1,10 @@
 package datawave.microservice.ingest.messaging;
 
-import datawave.ingest.mapreduce.job.CBMutationOutputFormatter;
 import datawave.microservice.ingest.configuration.IngestProperties;
 import datawave.microservice.ingest.driver.IngestDriver;
-import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +13,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
+/**
+ * Responsible for processing messages off of the configured rabbitmq topic and kicking off the configured ingest job for each file. The uuid, attempts, and
+ * message will be used to create a FileSplit and passed to an IngestDriver to process.
+ */
 @Configuration
 @EnableConfigurationProperties(IngestProperties.class)
 public class SplitConsumer {
@@ -50,7 +55,6 @@ public class SplitConsumer {
             
             if (rr != null) {
                 FileSplit fileSplit = null;
-                OutputCommitter committer = null;
                 org.apache.hadoop.conf.Configuration conf = getConf();
                 
                 // get the header from the message to inform the task attempt #
@@ -96,11 +100,38 @@ public class SplitConsumer {
      */
     @Bean
     public org.apache.hadoop.conf.Configuration getConf() {
+        List<Pattern> dirPatterns = new ArrayList<>();
         org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
         if (properties != null) {
             for (String fsConfigResource : properties.getFsConfigResources()) {
-                conf.addResource(new Path(fsConfigResource));
-                log.info("Added resource: " + fsConfigResource);
+                File f = new File(fsConfigResource);
+                if (f.isFile()) {
+                    conf.addResource(new Path(fsConfigResource));
+                    log.info("Added resource: " + fsConfigResource);
+                } else if (f.isDirectory()) {
+                    if (properties.getResourceDirPatterns() != null) {
+                        for (String patternString : properties.getResourceDirPatterns()) {
+                            dirPatterns.add(Pattern.compile(patternString));
+                        }
+                    }
+                    log.info("Adding resource directory: " + fsConfigResource);
+                    for (File child : f.listFiles()) {
+                        if (!child.isDirectory() && child.exists()) {
+                            boolean matches = dirPatterns.size() == 0;
+                            
+                            for (Pattern p : dirPatterns) {
+                                if (p.matcher(child.toString()).matches()) {
+                                    matches = true;
+                                }
+                            }
+                            
+                            if (matches) {
+                                conf.addResource(new Path(child.toString()));
+                                log.info("Adding resource directory file: " + child.toString());
+                            }
+                        }
+                    }
+                }
             }
         } else {
             log.warn("Properties null!");

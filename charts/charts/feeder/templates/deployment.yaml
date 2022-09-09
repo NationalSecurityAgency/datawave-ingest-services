@@ -1,0 +1,103 @@
+{{- range .Values.feeds }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "feeder.fullname" $ }}-{{ .name }}
+  labels:
+    {{- include "feeder.labels" $ | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "feeder.selectorLabels" $ | nindent 6 }}
+  template:
+    metadata:
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "feeder.selectorLabels" $ | nindent 8 }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $.Chart.Name }}
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          env:
+            - name: "DEST_QUEUE"
+              value: {{ .queue }}
+            - name: "CONFIG_SERVER_URL"
+              value: "http://{{ $.Values.global.services.configuration }}:8888/configserver"
+          args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profile }}"]
+          volumeMounts:
+            - mountPath: {{ $.Values.global.volumes.pki.destination }}
+              name: {{ $.Values.global.volumes.pki.name }}
+              readOnly: true
+            - mountPath: {{ $.Values.global.volumes.hadoop.destination }}
+              name: {{ $.Values.global.volumes.hadoop.name }}
+              readOnly: true
+            - mountPath: {{ $.Values.global.volumes.logs.destination }}
+              name: {{ $.Values.global.volumes.logs.name }}
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+      volumes:
+        {{- with $.Values.global.volumes.pki }}
+        - name: {{ .name }}
+          {{- if eq .source.type "hostPath" }}
+          hostPath:
+            path: {{ .source.path }}
+            type: Directory
+          {{- else if eq .source.type "configmap" }}
+          configMap:
+            name: {{ .source.name }}
+          {{- else if eq .source.type "secret" }}
+          secret:
+            secretName: {{ .source.name }}
+            optional: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+        {{- with $.Values.global.volumes.hadoop }}
+        - name: {{ .name }}
+          {{- if eq .source.type "hostPath" }}
+          hostPath:
+            path: {{ .source.path }}
+            type: Directory
+          {{- else if eq .source.type "configmap" }}
+          configMap:
+            name: {{ .source.name }}
+          {{- else if eq .source.type "secret" }}
+          secret:
+            secretName: {{ .source.name }}
+            optional: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+        - name: {{ $.Values.global.volumes.logs.name }}
+          hostPath:
+            path: {{ $.Values.global.volumes.logs.source.path }}
+            type: DirectoryOrCreate
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{- end }}

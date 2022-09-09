@@ -18,6 +18,7 @@ public class IngestProperties {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     private List<String> fsConfigResources;
+    private List<String> resourceDirPatterns;
     
     @NotNull
     private boolean liveIngest;
@@ -32,6 +33,14 @@ public class IngestProperties {
     public void setFsConfigResources(List<String> fsConfigResources) {
         this.fsConfigResources = fsConfigResources;
         log.info("Got resources: " + fsConfigResources);
+    }
+    
+    public List<String> getResourceDirPatterns() {
+        return resourceDirPatterns;
+    }
+    
+    public void setResourceDirPatterns(List<String> resourceDirPatterns) {
+        this.resourceDirPatterns = resourceDirPatterns;
     }
     
     public AccumuloProperties getAccumuloProperties() {

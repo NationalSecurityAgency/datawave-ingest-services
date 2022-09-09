@@ -1,0 +1,15 @@
+file:
+  frequency: 60000
+  recursive: false
+  inputDir: file:///input/speedy/
+  ignorePrefix: '.'
+  maxFiles: 1
+  maxAge: 10000
+  maxSize: 1000000000
+  fsConfigResources:
+    - /etc/hadoop/conf/hdfs-site.xml
+    - /etc/hadoop/conf/core-site.xml
+
+bundler:
+  workDir: file:///tmp/bundler/speedy/
+  bundleOutputDir: /data/input/pri2

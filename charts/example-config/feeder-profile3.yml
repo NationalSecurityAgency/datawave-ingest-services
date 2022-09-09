@@ -1,0 +1,5 @@
+file:
+  inputDir: '/data/input/feed3'
+
+feeder:
+  targetDir: '/data/input/flagged/feed3'
