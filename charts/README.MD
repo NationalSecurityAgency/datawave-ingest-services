@@ -44,11 +44,13 @@ eval $(minikube -p minikube docker-env)
 mvn clean install -Pdocker
 ```
 
-Updating values.yaml requires the following configuration. See `values.example.yaml` for an example `values.yaml`
+Updating values.yaml requires the following configuration. See [values.example.yaml](values.example.yaml) for an example [values.yaml](values.yaml)
+### Globals
+`global.services.configuration`- configuration service address
 
-`global.services.configuration`= configuration service address
+`global.services.zookeeper` - zookeeper service address
 
-`global.services.zookeeper` = zookeeper service address
+`global.accumulo.secret` - accumulo user account secret information
 
 The follow volumes must be defined
 
@@ -74,8 +76,9 @@ Each volume must have the following configured
 
 `.source.name` or `.source.path` - when using secret or configmap name must be specified to reference a valid secret or configmap. When `type` is hostPath a `source.path` must be specified
 
-Ingest has three parts:
+###Ingest has three parts:
 
+####Feeder
 `feeder.feeds` - An list which defines feeds to process. Each feed must have:
 
 `.name` - the name of the feed
@@ -84,6 +87,7 @@ Ingest has three parts:
 
 `.queue` - the rabbit queue to push files found to
 
+####Ingest
 `ingest.pools` - A list of ingest processing pools. Each pool must have:
 
 `.name` - a name to identify the pool
@@ -94,6 +98,11 @@ Ingest has three parts:
 
 `.profiles` - the config service profiles to apply, comma delimited
 
+Ingest must have a secret defined for its accumulo username and password. This may be controlled via
+
+`.`
+
+####Bundler
 `bundler` - defines what bundlers are in use, if any
 
 `bundler.enabled` - when enabled bundlers will be deployed as a daemonset

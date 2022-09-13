@@ -66,6 +66,22 @@ public class IngestDriver {
         this.conf = conf;
         this.rr = rr;
         this.properties = properties;
+        
+        init();
+    }
+    
+    /**
+     * Apply ACCUMULO_USER and ACCUMULO_PASSWORD to AccumuloProperties if they exist
+     */
+    private void init() {
+        String envUser = System.getenv("ACCUMULO_USER");
+        if (envUser != null) {
+            properties.getAccumuloProperties().setUsername(envUser);
+        }
+        String envPassword = System.getenv("ACCUMULO_PASSWORD");
+        if (envPassword != null) {
+            properties.getAccumuloProperties().setPassword(envPassword);
+        }
     }
     
     public void ingest(String uuid, int attempt, FileSplit split) throws IOException, InterruptedException {

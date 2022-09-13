@@ -1,3 +1,45 @@
+global:
+  services:
+    configuration: ""
+    zookeeper: ""
+  accumulo:
+    secret:
+      name: ""
+      username: ""
+      password: ""
+  volumes:
+    pki:
+      name:  ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    hadoop:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    logs:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        path: ""
+    datawave:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    output:
+      name: ""
+      destination: ""
+      prefix: ""
+      source:
+        type: ""
+        path: ""
+
 pools: []
 
 image:
