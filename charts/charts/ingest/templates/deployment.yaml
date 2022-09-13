@@ -41,6 +41,18 @@ spec:
               value: "http://{{ $.Values.global.services.configuration }}:8888/configserver"
             - name: "ZOOKEEPER_HOST"
               value: "{{ $.Values.global.services.zookeeper }}"
+            - name: "ACCUMULO_USER"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.accumulo.secret.name }}
+                  key: {{ $.Values.global.accumulo.secret.username }}
+                  optional: false
+            - name: "ACCUMULO_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.accumulo.secret.name }}
+                  key: {{ $.Values.global.accumulo.secret.password }}
+                  optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profiles }}"]
           volumeMounts:
             - mountPath: {{ $.Values.global.volumes.pki.destination }}

@@ -1,5 +1,34 @@
-enabled: false
+global:
+  services:
+    configuration: ""
+  volumes:
+    pki:
+      name:  ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    hadoop:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    logs:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        path: ""
+    input:
+      name: ""
+      destination: ""
+      prefix: ""
+      source:
+        type: ""
+        path: ""
 
+enabled: false
 pools: []
 
 image:

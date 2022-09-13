@@ -1,5 +1,3 @@
 accumulo:
   zookeepers: '${ZOOKEEPER_HOST:localhost}:2181'
   instanceName: 'dev'
-  username: 'root'
-  password: 'root'

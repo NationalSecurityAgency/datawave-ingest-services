@@ -5,6 +5,29 @@
 # replaced with the instance array binding, each pod will be a replica of size 1
 # replicaCount: 1
 
+global:
+  services:
+    configuration: ""
+  volumes:
+    pki:
+      name:  ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    hadoop:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    logs:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        path: ""
+
 feeds: []
 
 image:
