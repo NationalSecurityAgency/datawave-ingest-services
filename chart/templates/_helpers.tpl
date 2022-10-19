@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "secrets.name" -}}
+{{- define "ingest.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "secrets.fullname" -}}
+{{- define "ingest.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "secrets.chart" -}}
+{{- define "ingest.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "secrets.labels" -}}
-helm.sh/chart: {{ include "secrets.chart" . }}
-{{ include "secrets.selectorLabels" . }}
+{{- define "ingest.labels" -}}
+helm.sh/chart: {{ include "ingest.chart" . }}
+{{ include "ingest.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,18 +45,26 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "secrets.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "secrets.name" . }}
+{{- define "ingest.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "ingest.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "secrets.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "secrets.fullname" .) .Values.serviceAccount.name }}
+{{- define "ingest.serviceAccountName" -}}
+{{- if .Values.configuration.serviceAccount.create }}
+{{- default (include "ingest.fullname" .) .Values.configuration.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" .Values.configuration.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{- define "ingest.messaging.serviceAccountName" -}}
+{{- if .Values.messaging.serviceAccount.create }}
+{{- default (include "ingest.fullname" .) .Values.messaging.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.messaging.serviceAccount.name }}
 {{- end }}
 {{- end }}

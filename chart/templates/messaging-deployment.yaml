@@ -1,0 +1,74 @@
+{{- if $.Values.messaging.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Values.messaging.name }}
+  labels:
+    app: {{ $.Values.messaging.name }}
+spec:
+  replicas: {{ .Values.messaging.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $.Values.messaging.name }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ $.Values.messaging.name }}
+        {{- include "ingest.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Values.messaging.name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.messaging.image.repository }}:{{ .Values.messaging.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.messaging.image.pullPolicy }}
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: "{{ .Values.global.volumes.rabbit.name }}"
+              mountPath: "{{ .Values.global.volumes.rabbit.destination }}"
+              readOnly: true
+      volumes:
+        {{- with $.Values.global.volumes.rabbit }}
+        - name: {{ .name }}
+          {{- if eq .source.type "hostPath" }}
+          hostPath:
+            path: {{ .source.path }}
+            type: Directory
+          {{- else if eq .source.type "configmap" }}
+          configMap:
+            name: {{ .source.name }}
+          {{- else if eq .source.type "secret" }}
+          secret:
+            secretName: {{ .source.name }}
+            optional: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- end }}

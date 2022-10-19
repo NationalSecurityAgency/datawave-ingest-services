@@ -42,6 +42,9 @@ eval $(minikube -p minikube docker-env)
 
 # build services as usual
 mvn clean install -Pdocker
+
+# if using the configuration service also build the datawave/config-service image
+
 ```
 
 Updating values.yaml requires the following configuration. See [values.example.yaml](values.example.yaml) for an example [values.yaml](values.yaml)
@@ -50,10 +53,14 @@ Updating values.yaml requires the following configuration. See [values.example.y
 
 `global.services.zookeeper` - zookeeper service address
 
-`global.accumulo.secret` - accumulo user account secret information
+#### Secrets
+`global.secrets.accumulo` - accumulo user account secret information
 
-The follow volumes must be defined
+`global.secrets.keystore` - keystore name, alias, path, and password
 
+`global.secrets.truststore` - truststore name, path, and password
+
+#### Volumes
 `global.volumes.pki` - pki files (secret recommended)
 
 `global.volumes.hadoop` - hadoop config files
@@ -65,6 +72,10 @@ The follow volumes must be defined
 `global.volumes.output` - datawave ingest output location
 
 `global.volumes.input` - bundler input location (suggested to match output location)
+
+`global.volumes.config` - configuration service config volume
+
+`global.volumes.rabbit` - messaging service config volume
 
 Each volume must have the following configured
 
@@ -115,20 +126,48 @@ Ingest must have a secret defined for its accumulo username and password. This m
 
 See `values.example.yaml` for sample configuration. Any Configuration service must have the additional configs defined in `example-config`. 
 
+### Support Services
+configuration and messaging services may be deployed as part of this chart or an external configuration and messaging service may be used. 
+`.enabled` - is the service enabled
+
+`.name` - the service name, should be updated in global.services if being used
+
+`.replicaCount` - the number of replicas to run the service
+
+`.image.repository` - the image repository
+
+`.image.pullPolicy` - the image pull policy
+
+`.image.tag` - the image tag
+
+#### Configuration config
+`.dir` - the directory to serve config from
+
+`.port` - the port to expose for the configuration service
+
+#### Messaging config
+ Requires global.volumes.rabbitmq
+
+`.ports.amqp` - the amqp port to expose
+
+`.ports.mgmt` - the management port to expose
+
 ###Suggested testing environment 
 [minikube_helm](https://gitlab.evoforge.org/warehouses1/minikube_helm)
 ```bash
 helm install zk zookeeper/
 helm install hadoop hadoop/
+helm install master ingest/ &
 helm install accumulo accumulo/
 
 # update config service to pull in example-config in values.yaml, then
 helm install web web/
 
-helm install master ingest/
 ```
 
 ###Install this helm chart
 ```bash
+cd chart
+helm dependency update
 helm install ingest .
 ```

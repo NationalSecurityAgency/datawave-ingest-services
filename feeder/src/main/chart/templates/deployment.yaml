@@ -36,6 +36,18 @@ spec:
               value: {{ .queue }}
             - name: "CONFIG_SERVER_URL"
               value: "http://{{ $.Values.global.services.configuration }}:8888/configserver"
+            - name: KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.password }}
+                  optional: false
+            - name: TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.password }}
+                  optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profile }}"]
           volumeMounts:
             - mountPath: {{ $.Values.global.volumes.pki.destination }}

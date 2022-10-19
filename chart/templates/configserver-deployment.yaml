@@ -1,0 +1,128 @@
+{{- if $.Values.configuration.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Values.configuration.name }}
+  labels:
+    app: {{ $.Values.configuration.name }}
+spec:
+  replicas: {{ .Values.configuration.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $.Values.configuration.name }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ $.Values.configuration.name }}
+        {{- include "ingest.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-{{ .Values.configuration.name }}
+          args:
+            - "--spring.cloud.config.server.native.searchLocations=file://{{ .Values.global.volumes.config.destination }}"
+            - "--spring.output.ansi.enabled=ALWAYS"
+            - "--spring.profiles.active=native,open_actuator"
+          env:
+            - name: KEY_ALIAS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.alias }}
+                  optional: false
+            - name: KEYSTORE_LOCATION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.path }}
+                  optional: false
+            - name: KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.password }}
+                  optional: false
+            - name: TRUSTSTORE_LOCATION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.path }}
+                  optional: false
+            - name: TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.password }}
+                  optional: false
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.configuration.image.repository }}:{{ .Values.configuration.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.configuration.image.pullPolicy }}
+          ports:
+            - containerPort: 8888
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: "{{ .Values.global.volumes.pki.name }}"
+              mountPath: "{{ .Values.global.volumes.pki.destination }}"
+              readOnly: true
+            - name: "{{ .Values.global.volumes.config.name }}"
+              mountPath: "{{ .Values.global.volumes.config.destination }}"
+              readOnly: true
+      volumes:
+        {{- with $.Values.global.volumes.pki }}
+        - name: {{ .name }}
+          {{- if eq .source.type "hostPath" }}
+          hostPath:
+            path: {{ .source.path }}
+            type: Directory
+          {{- else if eq .source.type "configmap" }}
+          configMap:
+            name: {{ .source.name }}
+          {{- else if eq .source.type "secret" }}
+          secret:
+            secretName: {{ .source.name }}
+            optional: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+        {{- with $.Values.global.volumes.config }}
+        - name: {{ .name }}
+          {{- if eq .source.type "hostPath" }}
+          hostPath:
+            path: {{ .source.path }}
+            type: Directory
+          {{- else if eq .source.type "configmap" }}
+          configMap:
+            name: {{ .source.name }}
+          {{- else if eq .source.type "secret" }}
+          secret:
+            secretName: {{ .source.name }}
+            optional: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

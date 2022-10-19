@@ -1,0 +1,16 @@
+{{- if $.Values.messaging.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Values.global.volumes.rabbit.source.name }}"
+  labels:
+    application: "{{ .Values.global.volumes.rabbit.source.name }}"
+
+data:
+  enabled_plugins: |
+    [rabbitmq_management].
+
+  rabbitmq.conf: |
+    loopback_users.guest = false
+    queue_master_locator = min-masters
+{{- end }}

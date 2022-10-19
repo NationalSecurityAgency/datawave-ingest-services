@@ -1,0 +1,18 @@
+{{- if $.Values.messaging.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Values.messaging.name }}
+  labels:
+    app: {{ $.Values.messaging.name }}
+spec:
+  selector:
+    app: {{ $.Values.messaging.name }}
+  ports:
+    - name: amqp
+      port: {{ .Values.messaging.ports.amqp }}
+      targetPort: 5672
+    - name: mgmt
+      port: {{ .Values.messaging.ports.mgmt }}
+      targetPort: 15672
+{{- end }}
