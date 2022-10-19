@@ -1,15 +1,16 @@
-{{- range .Values.pools }}
+{{- if .Values.enabled }}
+{{- range $.Values.pools }}
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  name: {{ include "ingest.fullname" $ }}-{{ .name }}
+  name: {{ include "bundler.fullname" $ }}-{{ .name }}
   labels:
-    {{- include "ingest.labels" $ | nindent 4 }}
+    {{- include "bundler.labels" $ | nindent 4 }}
 spec:
-  replicas: {{ .replicas }}
   selector:
     matchLabels:
-      {{- include "ingest.selectorLabels" $ | nindent 6 }}
+      app: datawave.bundler
+      {{- include "bundler.selectorLabels" $ | nindent 6 }}
   template:
     metadata:
       {{- with $.Values.podAnnotations }}
@@ -17,7 +18,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "ingest.selectorLabels" $ | nindent 8 }}
+        app: datawave.bundler
+        {{- include "bundler.selectorLabels" $ | nindent 8 }}
     spec:
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
@@ -27,31 +29,24 @@ spec:
         {{- toYaml $.Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ $.Chart.Name }}
-          workingDir: {{ $.Values.global.volumes.datawave.destination }}
           securityContext:
             {{- toYaml $.Values.securityContext | nindent 12 }}
           image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
-            - name: "SOURCE_QUEUE"
-              value: {{ .queue }}
-            - name: "OUTPUT_DIR"
-              value: {{ $.Values.global.volumes.output.prefix }}{{ $.Values.global.volumes.output.destination }}/{{ .name }}
             - name: "CONFIG_SERVER_URL"
               value: "http://{{ $.Values.global.services.configuration }}:8888/configserver"
-            - name: "ZOOKEEPER_HOST"
-              value: "{{ $.Values.global.services.zookeeper }}"
-            - name: "ACCUMULO_USER"
+            - name: KEYSTORE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.global.accumulo.secret.name }}
-                  key: {{ $.Values.global.accumulo.secret.username }}
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.password }}
                   optional: false
-            - name: "ACCUMULO_PASSWORD"
+            - name: TRUSTSTORE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.global.accumulo.secret.name }}
-                  key: {{ $.Values.global.accumulo.secret.password }}
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.password }}
                   optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profiles }}"]
           volumeMounts:
@@ -63,11 +58,8 @@ spec:
               readOnly: true
             - mountPath: {{ $.Values.global.volumes.logs.destination }}
               name: {{ $.Values.global.volumes.logs.name }}
-            - mountPath: {{ $.Values.global.volumes.datawave.destination }}
-              name: {{ $.Values.global.volumes.datawave.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.output.destination }}
-              name: {{ $.Values.global.volumes.output.name }}
+            - mountPath: {{ $.Values.global.volumes.input.destination }}
+              name: {{ $.Values.global.volumes.input.name }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
@@ -105,24 +97,7 @@ spec:
           emptyDir: {}
           {{- end }}
         {{- end }}
-        {{- with $.Values.global.volumes.datawave }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
-        {{- with $.Values.global.volumes.output }}
+        {{- with $.Values.global.volumes.input }}
         - name: {{ .name }}
           {{- if eq .source.type "hostPath" }}
           hostPath:
@@ -149,4 +124,5 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 ---
+{{- end }}
 {{- end }}

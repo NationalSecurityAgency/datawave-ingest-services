@@ -1,16 +1,15 @@
-{{- if .Values.enabled }}
-{{- range $.Values.pools }}
+{{- range .Values.pools }}
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
-  name: {{ include "bundler.fullname" $ }}-{{ .name }}
+  name: {{ include "ingest.fullname" $ }}-{{ .name }}
   labels:
-    {{- include "bundler.labels" $ | nindent 4 }}
+    {{- include "ingest.labels" $ | nindent 4 }}
 spec:
+  replicas: {{ .replicas }}
   selector:
     matchLabels:
-      app: datawave.bundler
-      {{- include "bundler.selectorLabels" $ | nindent 6 }}
+      {{- include "ingest.selectorLabels" $ | nindent 6 }}
   template:
     metadata:
       {{- with $.Values.podAnnotations }}
@@ -18,8 +17,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        app: datawave.bundler
-        {{- include "bundler.selectorLabels" $ | nindent 8 }}
+        {{- include "ingest.selectorLabels" $ | nindent 8 }}
     spec:
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
@@ -29,13 +27,56 @@ spec:
         {{- toYaml $.Values.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ $.Chart.Name }}
+          workingDir: {{ $.Values.global.volumes.datawave.destination }}
           securityContext:
             {{- toYaml $.Values.securityContext | nindent 12 }}
           image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
+            - name: "SOURCE_QUEUE"
+              value: {{ .queue }}
+            - name: "OUTPUT_DIR"
+              value: {{ $.Values.global.volumes.output.prefix }}{{ $.Values.global.volumes.output.destination }}/{{ .name }}
             - name: "CONFIG_SERVER_URL"
               value: "http://{{ $.Values.global.services.configuration }}:8888/configserver"
+            - name: "ZOOKEEPER_HOST"
+              value: "{{ $.Values.global.services.zookeeper }}"
+            - name: "ACCUMULO_USER"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.accumulo.name }}
+                  key: {{ $.Values.global.secrets.accumulo.username }}
+                  optional: false
+            - name: "ACCUMULO_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.accumulo.name }}
+                  key: {{ $.Values.global.secrets.accumulo.password }}
+                  optional: false
+            - name: "KEYSTORE_LOCATION"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.path }}
+                  optional: false
+            - name: "KEYSTORE_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.password }}
+                  optional: false
+            - name: "TRUSTSTORE_LOCATION"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.path }}
+                  optional: false
+            - name: "TRUSTSTORE_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.password }}
+                  optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profiles }}"]
           volumeMounts:
             - mountPath: {{ $.Values.global.volumes.pki.destination }}
@@ -46,8 +87,11 @@ spec:
               readOnly: true
             - mountPath: {{ $.Values.global.volumes.logs.destination }}
               name: {{ $.Values.global.volumes.logs.name }}
-            - mountPath: {{ $.Values.global.volumes.input.destination }}
-              name: {{ $.Values.global.volumes.input.name }}
+            - mountPath: {{ $.Values.global.volumes.datawave.destination }}
+              name: {{ $.Values.global.volumes.datawave.name }}
+              readOnly: true
+            - mountPath: {{ $.Values.global.volumes.output.destination }}
+              name: {{ $.Values.global.volumes.output.name }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
@@ -85,7 +129,24 @@ spec:
           emptyDir: {}
           {{- end }}
         {{- end }}
-        {{- with $.Values.global.volumes.input }}
+        {{- with $.Values.global.volumes.datawave }}
+        - name: {{ .name }}
+          {{- if eq .source.type "hostPath" }}
+          hostPath:
+            path: {{ .source.path }}
+            type: Directory
+          {{- else if eq .source.type "configmap" }}
+          configMap:
+            name: {{ .source.name }}
+          {{- else if eq .source.type "secret" }}
+          secret:
+            secretName: {{ .source.name }}
+            optional: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+        {{- with $.Values.global.volumes.output }}
         - name: {{ .name }}
           {{- if eq .source.type "hostPath" }}
           hostPath:
@@ -112,5 +173,4 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 ---
-{{- end }}
 {{- end }}

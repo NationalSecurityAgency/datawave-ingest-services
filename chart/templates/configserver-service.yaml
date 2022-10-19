@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.configuration.name }}
+  labels:
+    app: {{ $.Values.configuration.name }}
+spec:
+  selector:
+    app: {{ .Values.configuration.name }}
+  ports:
+    - name: default
+      port: {{ .Values.configuration.port }}
+      targetPort: 8888

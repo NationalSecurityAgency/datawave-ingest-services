@@ -1,0 +1,97 @@
+global:
+  services:
+    configuration: ""
+    zookeeper: ""
+    rabbitmq: ""
+  secrets:
+    accumulo:
+      name: ""
+      username: ""
+      password: ""
+    keystore:
+      name: ""
+      alias: ""
+      path: ""
+      password: ""
+    truststore:
+      name: ""
+      path: ""
+      password: ""
+  volumes:
+    pki:
+      name:  ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    hadoop:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    logs:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        path: ""
+    datawave:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    output:
+      name: ""
+      destination: ""
+      prefix: ""
+      source:
+        type: ""
+        path: ""
+    input:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        path: ""
+    config:
+      name: ""
+      destination: ""
+      source:
+        type: ""
+        name: ""
+    rabbit:
+        name: ""
+        destination: ""
+        source:
+          type: ""
+          name: ""
+feeder:
+  feeds: []
+ingest:
+  pools: []
+bundler:
+  enabled: false
+  pools: []
+
+configuration:
+  enabled: false
+  name: ""
+  replicaCount: 1
+  port: 8888
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: ""
+configuration:
+  enabled: false
+  name: ""
+  replicaCount: 1
+  image:
+    repository: ""
+    tag: ""
+    pullPolicy: ""
+  ports:
+    amqp: 5672
+    mgmt: 15672

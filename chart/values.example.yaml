@@ -2,18 +2,39 @@
 global:
   # External service links
   services:
-    # REQUIRED configuration service name/endpoint
-    configuration: datawave-configuration
-    # REQUIRED zookeeper service name/endpoint
+    # REQUIRED configuration service name/endpoint (all services) this should match configuration.name if built-in configuration is enabled
+    configuration: ingest-configuration
+    # REQUIRED rabbitmq service name/endpoint for configservice application.yml this should match messaging.name if built-in enabled
+    rabbitmq: ingest-rabbitmq
+    # REQUIRED zookeeper service name/endpoint for ingest services
     zookeeper: zookeeper
-  # Externally defined accumulo account secret specification
-  accumulo:
-    secret:
+  # Externally defined secret specification
+  secrets:
+    # REQUIRED accumulo secret
+    accumulo:
       # REQUIRED secret name containing accumulo user/password
       name: accumulo
       # REQUIRED username for accumulo user
       username: username
       # REQUIRED password for accumulo user
+      password: password
+    # REQUIRED keystore secret
+    keystore:
+      # REQUIRED keystore name
+      name: keystore
+      # REQUIRED alias key
+      alias: alias
+      # REQUIRED path key
+      path: path
+      # REQUIRED password key
+      password: password
+    # REQUIRED truststore secret
+    truststore:
+      # REQUIRED keystore name
+      name: truststore
+      # REQUIRED path key
+      path: path
+      # REQUIRED password key
       password: password
   # Volume definitions
   volumes:
@@ -85,7 +106,18 @@ global:
         type: hostPath
         # REQUIRED when specifying hostPath, host path to mount into destination
         path: /srv/data/datawave/ingest/
-
+    config:
+      name: application-configs
+      destination: /microservice-config
+      source:
+        type: configmap
+        name: application-configs-configmap
+    rabbit:
+      name: rabbit
+      destination: /etc/rabbitmq/
+      source:
+        type: configmap
+        name: rabbit-configmap
 # Feeder definition
 feeder:
   # Each feeder should be defined within feeds. One deployment per feed will be created
@@ -93,19 +125,19 @@ feeder:
     # feed name
     - name: "feed1"
       # spring profiles to apply to feed1
-      profile: "minikube,profile1"
+      profile: "minikube,dev,profile1"
       # rabbitmq queue to publish content from feed1
       queue: "fast"
     # feed name
     - name: "feed2"
       # spring profiles to apply to feed2
-      profile: "minikube,profile2"
+      profile: "minikube,dev,profile2"
       # rabbitmq queue to publish content from feed2
       queue: "fastest"
     # feed name
     - name: "feed3"
       # spring profiles to apply to feed3
-      profile: "minikube,profile3"
+      profile: "minikube,dev,profile3"
       # rabbitmq queue to publish content from feed3
       queue: "fastest"
 # Ingest definition
@@ -119,16 +151,7 @@ ingest:
       # number of replcias in the pool
       replicas: 1
       # spring profiles to apply to speedy pool
-      profiles: "minikube,profile1"
-      # accumulo secret information
-      accumulo:
-        secret:
-          # accumulo account secret name
-          name: accumulo
-          # accumulo accumulo secret username field
-          username: username
-          # accumulo user password secret password field
-          password: password
+      profiles: "minikube,dev,profile1"
     # ingest pool name
     - name: "speediest"
       # rabbitmq queue to read off of
@@ -136,16 +159,7 @@ ingest:
       # number of replicas in the pool
       replicas: 1
       # spring profiles to apply to speediest pool
-      profiles: "minikube,profile2"
-      # accumulo secret information
-      accumulo:
-        secret:
-          # accumulo account secret name
-          name: accumulo
-          # accumulo account secret username field
-          username: username
-          # accumulo user password secret password field
-          password: password
+      profiles: "minikube,dev,profile2"
 # Bundler definitions
 bundler:
   # true if the bundler is being used
@@ -155,12 +169,13 @@ bundler:
     # pri1 pool
     - name: pri1
       # spring profiles to apply to pri1 bundler
-      profiles: minikube,pri1
+      profiles: minikube,dev,pri1
     # pri2 pool
     - name: pri2
       # spring profiles to apply to pri2 bundler
-      profiles: minikube,pri2
-# if a secret is necessary for bootstrapping define it here. FOR TESTING ONLY. DO NOT USE IN PRODUCTION
+      profiles: minikube,dev,pri2
+# if a secret is necessary for bootstrapping define it here.
+#### FOR TESTING ONLY. DO NOT USE IN PRODUCTION ####
 secrets:
   accumulo:
     # accumulo secret name
@@ -169,3 +184,38 @@ secrets:
     username: root
     # accumulo password value
     password: root
+  keystore:
+    name: keystore
+    alias: "1"
+    password: changeme
+    path: "file:///data/certs/keystore.p12"
+  truststore:
+    name: truststore
+    password: ChangeIt
+    path: "file:///data/certs/truststore.jks"
+  pki:
+    name: datawave-certificates-secret
+    dir: example-certs
+# if configuration is necessary for bootstrapping define it here, specify another named configuration service in global.services.configuration
+# configuration.name and messaging.name should match global.services.configuration and global.services.rabbitmq if enabled
+configuration:
+  enabled: true
+  name: ingest-configuration
+  dir: example-config
+  port: 8888
+  replicaCount: 1
+  image:
+    repository: datawave/config-service
+    pullPolicy: IfNotPresent
+    tag: 1.6-SNAPSHOT
+messaging:
+  enabled: true
+  name: ingest-rabbitmq
+  replicaCount: 1
+  image:
+    repository: rabbitmq
+    pullPolicy: IfNotPresent
+    tag: 3.7.7-alpine
+  ports:
+    amqp: 5672
+    mgmt: 15672

@@ -1,0 +1,65 @@
+{{- if .Values.configuration.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Values.global.volumes.config.source.name }}
+data:
+  application.yml: |
+    logging:
+      level:
+        root: DEBUG
+    management:
+      endpoint.health.show-details: when-authorized
+      endpoints.web.base-path: /mgmt
+      endpoints.web.exposure.include: "*"
+    server:
+      non-secure-port: 8080
+      outbound-ssl:
+        key-store: ${KEYSTORE_LOCATION}
+        key-store-password: ${KEYSTORE_PASSWORD}
+        key-store-type: 'PKCS12'
+        trust-store: ${TRUSTSTORE_LOCATION}
+        trust-store-password: ${TRUSTSTORE_PASSWORD}
+        trust-store-type: 'JKS'
+      port: 8443
+      servlet.context-path: /${spring.application.name}
+      ssl:
+        client-auth: WANT
+    spring:
+      cloud:
+        consul:
+          enabled: false
+      rabbitmq:
+        discovery:
+          enabled: false
+          failFast: true
+        host: {{ $.Values.global.services.rabbitmq }}
+      security:
+        datawave:
+          enforce-allowed-callers: false
+          issuers-required: true
+          jwt.ttl: 86400
+          manager-role: Administator,JBossAdministrator
+        user.password: passwordNotUsed
+  {{- if and .Values.secrets.keystore.path .Values.secrets.truststore.path }}
+  application-dev.yml: |
+    server:
+      outbound-ssl:
+        key-store: '{{ .Values.secrets.keystore.path }}'
+        trust-store: '{{ .Values.secrets.truststore.path }}'
+      ssl:
+        key-store: '{{ .Values.secrets.keystore.path }}'
+        key-store-password: ${KEYSTORE_PASSWORD}
+        key-store-type: 'PKCS12'
+        trust-store: '{{ .Values.secrets.truststore.path }}'
+        trust-store-password: ${TRUSTSTORE_PASSWORD}
+        trust-store-type: 'JKS'
+  {{- end }}
+
+  {{- $files := .Files }}
+  {{- $searchPath := printf "%s/*" .Values.configuration.dir }}
+  {{- range $path, $_ := $files.Glob $searchPath }}
+  {{ $path | base }}: |
+  {{- $files.Get ( $path ) | nindent 4 -}}
+  {{- end }}
+{{- end }}

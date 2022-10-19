@@ -2,10 +2,19 @@ global:
   services:
     configuration: ""
     zookeeper: ""
-  accumulo:
-    secret:
+  secrets:
+    accumulo:
       name: ""
-      username: ""
+      username: "username"
+      password: "password"
+    keystrore:
+      name: ""
+      path: ""
+      password: ""
+      alias: ""
+    truststore:
+      name: ""
+      path: ""
       password: ""
   volumes:
     pki:

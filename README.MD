@@ -19,7 +19,7 @@ Bundler Service - monitors a directory for sequence/manifest file pairs, based o
 * Datawave (3.10.1)
 
 ##Setup
-Recommended to use an existing K8s environment. See [README](charts/README.MD)
+Recommended to use an existing K8s environment. See [README](chart/README.MD)
 
 ##Building
 
