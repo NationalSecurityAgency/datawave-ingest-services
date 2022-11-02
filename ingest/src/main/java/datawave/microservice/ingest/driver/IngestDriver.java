@@ -1,10 +1,12 @@
 package datawave.microservice.ingest.driver;
 
 import datawave.ingest.data.RawRecordContainer;
+import datawave.ingest.data.config.ingest.AccumuloHelper;
 import datawave.ingest.mapreduce.ContextWrappedStatusReporter;
 import datawave.ingest.mapreduce.EventMapper;
 import datawave.ingest.mapreduce.job.BulkIngestKey;
 import datawave.ingest.mapreduce.job.CBMutationOutputFormatter;
+import datawave.ingest.mapreduce.job.TableConfigurationUtil;
 import datawave.ingest.mapreduce.job.reduce.BulkIngestKeyDedupeCombiner;
 import datawave.ingest.mapreduce.job.writer.AggregatingContextWriter;
 import datawave.ingest.mapreduce.job.writer.ChainedContextWriter;
@@ -45,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -82,6 +85,20 @@ public class IngestDriver {
         if (envPassword != null) {
             properties.getAccumuloProperties().setPassword(envPassword);
         }
+        
+        // setup required accumulo parameters
+        AccumuloHelper.setUsername(conf, properties.getAccumuloProperties().getUsername());
+        try {
+            AccumuloHelper.setPassword(conf, properties.getAccumuloProperties().getPassword().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            log.error("Failed to set password encoding", e);
+        }
+        
+        AccumuloHelper.setZooKeepers(conf, properties.getAccumuloProperties().getZookeepers());
+        AccumuloHelper.setInstanceName(conf, properties.getAccumuloProperties().getInstanceName());
+        
+        // setup table names after accumulo parameters are set
+        new TableConfigurationUtil(conf);
     }
     
     public void ingest(String uuid, int attempt, FileSplit split) throws IOException, InterruptedException {
