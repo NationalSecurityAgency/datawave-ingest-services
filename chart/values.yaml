@@ -84,7 +84,7 @@ configuration:
     repository: ""
     tag: ""
     pullPolicy: ""
-configuration:
+messaging:
   enabled: false
   name: ""
   replicaCount: 1
