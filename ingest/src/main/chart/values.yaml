@@ -68,6 +68,15 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# cmd override from the image
+cmd:
+  override: []
+# arguments override
+args:
+  # replace existing arguments or append
+  replace: false
+  override: []
+
 podAnnotations: {}
 
 podSecurityContext: {}
