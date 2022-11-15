@@ -23,11 +23,12 @@
     </scm>
     <properties>
         <version.avro>1.8.2</version.avro>
-        <version.datawave>3.10.1</version.datawave>
+        <version.datawave>3.33.2</version.datawave>
         <version.guava>25.1-jre</version.guava>
         <version.hadoop>3.3.0</version.hadoop>
         <version.microservice.ingest.common>1.0-SNAPSHOT</version.microservice.ingest.common>
-        <version.microservice.starter>1.6.8-SNAPSHOT</version.microservice.starter>
+        <version.microservice.metadata-utils>1.9</version.microservice.metadata-utils>
+        <version.microservice.starter>1.6.7-2.7.1</version.microservice.starter>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -100,6 +101,11 @@
             </dependency>
             <dependency>
                 <groupId>gov.nsa.datawave.microservice</groupId>
+                <artifactId>metadata-utils</artifactId>
+                <version>${version.microservice.metadata-utils}</version>
+            </dependency>
+            <dependency>
+                <groupId>gov.nsa.datawave.microservice</groupId>
                 <artifactId>spring-boot-starter-datawave</artifactId>
                 <version>${version.microservice.starter}</version>
             </dependency>
@@ -113,6 +119,11 @@
                         <groupId>org.slf4j</groupId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>${version.hadoop}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
@@ -158,6 +169,10 @@
                 <artifactId>hadoop-hdfs</artifactId>
                 <version>${version.hadoop}</version>
                 <exclusions>
+                    <exclusion>
+                        <artifactId>jsp-api</artifactId>
+                        <groupId>javax.servlet.jsp</groupId>
+                    </exclusion>
                     <exclusion>
                         <artifactId>*</artifactId>
                         <groupId>org.mortbay.jetty</groupId>
@@ -232,6 +247,41 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>gov.nsa.datawave.microservice</groupId>
+            <artifactId>spring-boot-starter-datawave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <repositories>
         <repository>
             <!--

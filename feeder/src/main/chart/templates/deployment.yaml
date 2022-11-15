@@ -29,18 +29,30 @@ spec:
         - name: {{ $.Chart.Name }}
           securityContext:
             {{- toYaml $.Values.securityContext | nindent 12 }}
-          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          image: "{{ $.Values.global.registry }}{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
             - name: "DEST_QUEUE"
               value: {{ .queue }}
             - name: "CONFIG_SERVER_URL"
               value: "http://{{ $.Values.global.services.configuration }}:8888/configserver"
+            - name: KEYSTORE_LOCATION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.path }}
+                  optional: false
             - name: KEYSTORE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ $.Values.global.secrets.keystore.name }}
                   key: {{ $.Values.global.secrets.keystore.password }}
+                  optional: false
+            - name: TRUSTSTORE_LOCATION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.path }}
                   optional: false
             - name: TRUSTSTORE_PASSWORD
               valueFrom:
@@ -50,51 +62,14 @@ spec:
                   optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profile }}"]
           volumeMounts:
-            - mountPath: {{ $.Values.global.volumes.pki.destination }}
-              name: {{ $.Values.global.volumes.pki.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.hadoop.destination }}
-              name: {{ $.Values.global.volumes.hadoop.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.logs.destination }}
-              name: {{ $.Values.global.volumes.logs.name }}
+            {{- include "feeder.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
+            {{- include "feeder.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
+            {{- include "feeder.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
-        {{- with $.Values.global.volumes.pki }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
-        {{- with $.Values.global.volumes.hadoop }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
+        {{- include "feeder.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "feeder.volume" $.Values.global.volumes.hadoop | nindent 8 }}
         - name: {{ $.Values.global.volumes.logs.name }}
           hostPath:
             path: {{ $.Values.global.volumes.logs.source.path }}

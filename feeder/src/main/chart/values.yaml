@@ -6,6 +6,7 @@
 # replicaCount: 1
 
 global:
+  registry: ""
   services:
     configuration: ""
   volumes:

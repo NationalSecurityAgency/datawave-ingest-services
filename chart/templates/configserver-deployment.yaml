@@ -65,54 +65,18 @@ spec:
                   optional: false
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.configuration.image.repository }}:{{ .Values.configuration.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.global.registry }}{{ .Values.configuration.image.repository }}:{{ .Values.configuration.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.configuration.image.pullPolicy }}
           ports:
             - containerPort: 8888
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: "{{ .Values.global.volumes.pki.name }}"
-              mountPath: "{{ .Values.global.volumes.pki.destination }}"
-              readOnly: true
-            - name: "{{ .Values.global.volumes.config.name }}"
-              mountPath: "{{ .Values.global.volumes.config.destination }}"
-              readOnly: true
+            {{- include "ingest.volumeMount" .Values.global.volumes.pki | nindent 12 }}
+            {{- include "ingest.volumeMount" .Values.global.volumes.config | nindent 12 }}
       volumes:
-        {{- with $.Values.global.volumes.pki }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
-        {{- with $.Values.global.volumes.config }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
+        {{- include "ingest.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "ingest.volume" $.Values.global.volumes.config | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -1,4 +1,5 @@
 global:
+  registry: ""
   services:
     configuration: ""
     zookeeper: ""
@@ -84,7 +85,7 @@ configuration:
     repository: ""
     tag: ""
     pullPolicy: ""
-configuration:
+messaging:
   enabled: false
   name: ""
   replicaCount: 1

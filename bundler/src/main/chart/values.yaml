@@ -1,4 +1,5 @@
 global:
+  registry: ""
   services:
     configuration: ""
   volumes:
