@@ -30,7 +30,7 @@ spec:
           workingDir: {{ $.Values.global.volumes.datawave.destination }}
           securityContext:
             {{- toYaml $.Values.securityContext | nindent 12 }}
-          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          image: "{{ $.Values.global.registry }}{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
             - name: "SOURCE_QUEUE"
@@ -108,6 +108,13 @@ spec:
           secret:
             secretName: {{ .source.name }}
             optional: false
+            {{- if .source.keys }}
+            items:
+              {{- range .source.keys }}
+              - key: {{ .name }}
+                path: {{ .path }}
+              {{- end }}
+            {{- end }}
           {{- else }}
           emptyDir: {}
           {{- end }}

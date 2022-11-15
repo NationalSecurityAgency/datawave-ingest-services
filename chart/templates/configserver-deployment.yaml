@@ -65,7 +65,7 @@ spec:
                   optional: false
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.configuration.image.repository }}:{{ .Values.configuration.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.global.registry }}{{ .Values.configuration.image.repository }}:{{ .Values.configuration.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.configuration.image.pullPolicy }}
           ports:
             - containerPort: 8888
@@ -92,6 +92,13 @@ spec:
           secret:
             secretName: {{ .source.name }}
             optional: false
+            {{- if .source.keys }}
+            items:
+              {{- range .source.keys }}
+              - key: {{ .name }}
+                path: {{ .path }}
+              {{- end }}
+            {{- end }}
           {{- else }}
           emptyDir: {}
           {{- end }}

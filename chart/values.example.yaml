@@ -1,5 +1,7 @@
 # global overrides for all microservices
 global:
+  # OPTIONAL use as a prefix for a registry if in use, otherwise leave blank
+  registry: ""
   # External service links
   services:
     # REQUIRED configuration service name/endpoint (all services) this should match configuration.name if built-in configuration is enabled
