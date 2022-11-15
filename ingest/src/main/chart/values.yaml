@@ -21,12 +21,14 @@ global:
     pki:
       name:  ""
       destination: ""
+      readOnly: true
       source:
         type: ""
         name: ""
     hadoop:
       name: ""
       destination: ""
+      readOnly: true
       source:
         type: ""
         name: ""
@@ -39,6 +41,7 @@ global:
     datawave:
       name: ""
       destination: ""
+      readOnly: true
       source:
         type: ""
         name: ""
@@ -57,6 +60,9 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+
+# volumes specific to the container
+volumes: []
 
 imagePullSecrets: []
 nameOverride: ""

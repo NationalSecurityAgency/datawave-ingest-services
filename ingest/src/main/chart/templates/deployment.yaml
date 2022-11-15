@@ -79,79 +79,22 @@ spec:
                   optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profiles }}"]
           volumeMounts:
-            - mountPath: {{ $.Values.global.volumes.pki.destination }}
-              name: {{ $.Values.global.volumes.pki.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.hadoop.destination }}
-              name: {{ $.Values.global.volumes.hadoop.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.logs.destination }}
-              name: {{ $.Values.global.volumes.logs.name }}
-            - mountPath: {{ $.Values.global.volumes.datawave.destination }}
-              name: {{ $.Values.global.volumes.datawave.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.output.destination }}
-              name: {{ $.Values.global.volumes.output.name }}
+            {{- include "ingest.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
+            {{- include "ingest.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
+            {{- include "ingest.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
+            {{- include "ingest.volumeMount" $.Values.global.volumes.datawave | nindent 12 }}
+            {{- include "ingest.volumeMount" $.Values.global.volumes.output | nindent 12 }}
+            {{- range $.Values.volumes }}
+              {{- include "ingest.volumeMount" . | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
-        {{- with $.Values.global.volumes.pki }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-            {{- if .source.keys }}
-            items:
-              {{- range .source.keys }}
-              - key: {{ .name }}
-                path: {{ .path }}
-              {{- end }}
-            {{- end }}
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
-        {{- with $.Values.global.volumes.hadoop }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
-        {{- with $.Values.global.volumes.datawave }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
+        {{- include "ingest.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "ingest.volume" $.Values.global.volumes.hadoop | nindent 8 }}
+        {{- include "ingest.volume" $.Values.global.volumes.datawave | nindent 8 }}
+        {{- range $.Values.volumes }}
+          {{- include "ingest.volume" . | nindent 8 }}
         {{- end }}
         {{- with $.Values.global.volumes.output }}
         - name: {{ .name }}

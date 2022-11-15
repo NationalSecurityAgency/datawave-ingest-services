@@ -62,58 +62,14 @@ spec:
                   optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profile }}"]
           volumeMounts:
-            - mountPath: {{ $.Values.global.volumes.pki.destination }}
-              name: {{ $.Values.global.volumes.pki.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.hadoop.destination }}
-              name: {{ $.Values.global.volumes.hadoop.name }}
-              readOnly: true
-            - mountPath: {{ $.Values.global.volumes.logs.destination }}
-              name: {{ $.Values.global.volumes.logs.name }}
+            {{- include "feeder.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
+            {{- include "feeder.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
+            {{- include "feeder.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
-        {{- with $.Values.global.volumes.pki }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-            {{- if .source.keys }}
-            items:
-              {{- range .source.keys }}
-              - key: {{ .name }}
-                path: {{ .path }}
-              {{- end }}
-            {{- end }}
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
-        {{- with $.Values.global.volumes.hadoop }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
+        {{- include "feeder.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "feeder.volume" $.Values.global.volumes.hadoop | nindent 8 }}
         - name: {{ $.Values.global.volumes.logs.name }}
           hostPath:
             path: {{ $.Values.global.volumes.logs.source.path }}

@@ -38,27 +38,9 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: "{{ .Values.global.volumes.rabbit.name }}"
-              mountPath: "{{ .Values.global.volumes.rabbit.destination }}"
-              readOnly: true
+            {{- include "ingest.volumeMount" .Values.global.volumes.rabbit | nindent 12 }}
       volumes:
-        {{- with $.Values.global.volumes.rabbit }}
-        - name: {{ .name }}
-          {{- if eq .source.type "hostPath" }}
-          hostPath:
-            path: {{ .source.path }}
-            type: Directory
-          {{- else if eq .source.type "configmap" }}
-          configMap:
-            name: {{ .source.name }}
-          {{- else if eq .source.type "secret" }}
-          secret:
-            secretName: {{ .source.name }}
-            optional: false
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        {{- end }}
+      {{- include "ingest.volume" $.Values.global.volumes.rabbit | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

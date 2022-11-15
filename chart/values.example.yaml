@@ -46,6 +46,8 @@ global:
       name: pki
       # REQUIRED mount location for pki
       destination: /data/certs
+      # OPTIONAL specify if the volume is ready only
+      readOnly: true
       source:
         # REQUIRED must be one of secret/configmap/hostPath
         type: secret
@@ -57,6 +59,8 @@ global:
       name: hadoop
       # REQUIRED mount location for hadoop
       destination: /etc/hadoop/conf
+      # OPTIONAL specify if the volume is ready only
+      readOnly: true
       source:
         # REQUIRED must be one of secret/configmap/hostPath
         type: configmap
@@ -79,6 +83,8 @@ global:
       name: datawave-conf
       # REQUIRED mount location for datawave-config
       destination: /etc/datawave/conf
+      # OPTIONAL specify if the volume is ready only
+      readOnly: true
       source:
         # REQUIRED must be one of secret/configmap/hostPath
         type: configmap
@@ -111,12 +117,16 @@ global:
     config:
       name: application-configs
       destination: /microservice-config
+      # OPTIONAL specify if the volume is ready only
+      readOnly: true
       source:
         type: configmap
         name: application-configs-configmap
     rabbit:
       name: rabbit
       destination: /etc/rabbitmq/
+      # OPTIONAL specify if the volume is ready only
+      readOnly: true
       source:
         type: configmap
         name: rabbit-configmap
