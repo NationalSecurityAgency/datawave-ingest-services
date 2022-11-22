@@ -62,14 +62,14 @@ spec:
                   optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profile }}"]
           volumeMounts:
-            {{- include "feeder.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
-            {{- include "feeder.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
-            {{- include "feeder.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
-        {{- include "feeder.volume" $.Values.global.volumes.pki | nindent 8 }}
-        {{- include "feeder.volume" $.Values.global.volumes.hadoop | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.hadoop | nindent 8 }}
         - name: {{ $.Values.global.volumes.logs.name }}
           hostPath:
             path: {{ $.Values.global.volumes.logs.source.path }}

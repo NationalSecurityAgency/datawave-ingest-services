@@ -50,15 +50,15 @@ spec:
                   optional: false
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profiles }}"]
           volumeMounts:
-            {{- include "bundler.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
-            {{- include "bundler.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
-            {{- include "bundler.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
-            {{- include "bundler.volumeMount" $.Values.global.volumes.input | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.input | nindent 12 }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
-        {{- include "bundler.volume" $.Values.global.volumes.pki | nindent 8 }}
-        {{- include "bundler.volume" $.Values.global.volumes.hadoop | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.hadoop | nindent 8 }}
         {{- with $.Values.global.volumes.input }}
         - name: {{ .name }}
           {{- if eq .source.type "hostPath" }}

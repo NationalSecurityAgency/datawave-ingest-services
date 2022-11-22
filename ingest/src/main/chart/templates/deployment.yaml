@@ -92,22 +92,22 @@ spec:
             - {{ . | quote }}
             {{- end }}
           volumeMounts:
-            {{- include "ingest.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
-            {{- include "ingest.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
-            {{- include "ingest.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
-            {{- include "ingest.volumeMount" $.Values.global.volumes.datawave | nindent 12 }}
-            {{- include "ingest.volumeMount" $.Values.global.volumes.output | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.hadoop | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.logs | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.datawave | nindent 12 }}
+            {{- include "common.volumeMount" $.Values.global.volumes.output | nindent 12 }}
             {{- range $.Values.volumes }}
-              {{- include "ingest.volumeMount" . | nindent 12 }}
+              {{- include "common.volumeMount" . | nindent 12 }}
             {{- end }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
-        {{- include "ingest.volume" $.Values.global.volumes.pki | nindent 8 }}
-        {{- include "ingest.volume" $.Values.global.volumes.hadoop | nindent 8 }}
-        {{- include "ingest.volume" $.Values.global.volumes.datawave | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.hadoop | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.datawave | nindent 8 }}
         {{- range $.Values.volumes }}
-          {{- include "ingest.volume" . | nindent 8 }}
+          {{- include "common.volume" . | nindent 8 }}
         {{- end }}
         {{- with $.Values.global.volumes.output }}
         - name: {{ .name }}

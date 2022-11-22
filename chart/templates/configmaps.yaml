@@ -1,0 +1,14 @@
+{{- $files := .Files }}
+{{- range $.Values.global.configmaps }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+data:
+  {{- $searchPath := printf "%s/*" .dir }}
+  {{- range $path, $_ := $files.Glob $searchPath }}
+  {{ $path | base }}: |
+  {{- $files.Get ( $path ) | nindent 4 -}}
+  {{- end }}
+---
+{{- end }}

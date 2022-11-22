@@ -6,8 +6,8 @@ bundler/target
 feeder/target
 common/target
 bootstrap/target
+*/src/main/chart/charts/*.tgz
+*/src/main/chart/Chart.lock
+chart/Chart.lock
 chart/charts/*.tgz
 chart/Chart.lock
-*/chart/charts/*.tgz
-*/chart/Chart.lock
-bundler/chart/charts/*.tgz
