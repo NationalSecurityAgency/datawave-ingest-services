@@ -41,6 +41,7 @@ data:
           jwt.ttl: 86400
           manager-role: Administator,JBossAdministrator
         user.password: passwordNotUsed
+  {{- if .Values.secrets }}
   {{- if and .Values.secrets.keystore.path .Values.secrets.truststore.path }}
   application-dev.yml: |
     server:
@@ -54,6 +55,7 @@ data:
         trust-store: '{{ .Values.secrets.truststore.path }}'
         trust-store-password: ${TRUSTSTORE_PASSWORD}
         trust-store-type: 'JKS'
+  {{- end }}
   {{- end }}
 
   {{- $files := .Files }}

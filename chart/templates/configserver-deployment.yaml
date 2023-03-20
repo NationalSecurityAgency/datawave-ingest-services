@@ -72,11 +72,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            {{- include "ingest.volumeMount" .Values.global.volumes.pki | nindent 12 }}
-            {{- include "ingest.volumeMount" .Values.global.volumes.config | nindent 12 }}
+            {{- include "common.volumeMount" .Values.global.volumes.pki | nindent 12 }}
+            {{- include "common.volumeMount" .Values.global.volumes.config | nindent 12 }}
       volumes:
-        {{- include "ingest.volume" $.Values.global.volumes.pki | nindent 8 }}
-        {{- include "ingest.volume" $.Values.global.volumes.config | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.pki | nindent 8 }}
+        {{- include "common.volume" $.Values.global.volumes.config | nindent 8 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

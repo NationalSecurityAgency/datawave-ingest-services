@@ -1,98 +1,97 @@
+# Minimal umbrella chart for datawave ingest services. See README.MD for full configuration options
+
 global:
   registry: ""
   services:
+    # TODO an accessible configuration service, or the name of the internal configuration service if enabled
     configuration: ""
+    # TODO an external zookeeper service name
     zookeeper: ""
+    # TODO an accessible rabbitmq service, or the name of the internal rabbitmq service if enabled
     rabbitmq: ""
+  # TODO change secret names and bindings as necessary for the target system
   secrets:
     accumulo:
-      name: ""
-      username: ""
-      password: ""
+      name: accumulo
+      username: username
+      password: password
     keystore:
-      name: ""
-      alias: ""
-      path: ""
-      password: ""
+      name: keystore
+      alias: alias
+      path: path
+      password: password
     truststore:
-      name: ""
-      path: ""
-      password: ""
+      name: truststore
+      path: path
+      password: password
   volumes:
     pki:
-      name:  ""
-      destination: ""
+      name: pki
+      destination: /data/certs
+      readOnly: true
       source:
-        type: ""
-        name: ""
+        type: secret
+        name: datawave-certificates-secret
     hadoop:
-      name: ""
-      destination: ""
+      name: hadoop
+      destination: /etc/hadoop/conf
+      readOnly: true
       source:
-        type: ""
-        name: ""
+        type: configmap
+        name: hadoop-hadoop-minikube
     logs:
-      name: ""
-      destination: ""
+      name: logs
+      destination: /logs
       source:
-        type: ""
-        path: ""
+        type: hostPath
+        path: /srv/logs
     datawave:
-      name: ""
-      destination: ""
+      name: datawave-conf
+      destination: /etc/datawave/conf
+      readOnly: true
       source:
-        type: ""
-        name: ""
+        type: configmap
+        name: datawave-ingest-configmap
     output:
-      name: ""
-      destination: ""
-      prefix: ""
+      name: output
+      destination: /output
+      prefix: "file://"
       source:
-        type: ""
-        path: ""
+        type: hostPath
+        path: /srv/data/datawave/ingest/
     input:
-      name: ""
-      destination: ""
+      name: input
+      destination: /input
       source:
-        type: ""
-        path: ""
+        type: hostPath
+        path: /srv/data/datawave/ingest/
     config:
-      name: ""
-      destination: ""
+      name: application-configs
+      destination: /microservice-config
+      readOnly: true
       source:
-        type: ""
-        name: ""
+        type: configmap
+        name: application-configs-configmap
     rabbit:
-        name: ""
-        destination: ""
-        source:
-          type: ""
-          name: ""
+      name: rabbit
+      destination: /etc/rabbitmq/
+      readOnly: true
+      source:
+        type: configmap
+        name: rabbit-configmap
 feeder:
+  # TODO define feeds
   feeds: []
 ingest:
+  # TODO define ingest pools
   pools: []
 bundler:
+  # TODO enable if desired and define pools
   enabled: false
   pools: []
-
 configuration:
+  # TODO enable and configure if not using external configuration service
   enabled: false
-  name: ""
-  replicaCount: 1
-  port: 8888
-  image:
-    repository: ""
-    tag: ""
-    pullPolicy: ""
 messaging:
+  # TODO enable and configuration if not using an external rabbitmq service
   enabled: false
-  name: ""
-  replicaCount: 1
-  image:
-    repository: ""
-    tag: ""
-    pullPolicy: ""
-  ports:
-    amqp: 5672
-    mgmt: 15672
