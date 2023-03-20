@@ -14,14 +14,14 @@ Ingest Service - listens to a message queue, reads files from the location speci
 
 Bundler Service - monitors a directory for sequence/manifest file pairs, based on file thresholds, size in bytes, or file age. Files are aggregated locally to a working directory, then pushed to a final target directory. All referenced manifest files are moved from their original location to a final destination by applying a find/replace based on configured properties. See [README](bundler/README.MD)
 
-##Dependencies
+## Dependencies
 * Docker (20.10.12+)
 * Datawave (3.10.1)
 
-##Setup
+## Setup
 Recommended to use an existing K8s environment. See [README](chart/README.MD)
 
-##Building
+## Building
 
 #### Build Datawave
 ```bash
@@ -36,7 +36,7 @@ mvn clean install -DskipTests
 mvn clean install -Pdocker
 ```
 
-##Deploying
+## Deploying
 ### Configuration
 Feeder - See [README](feeder/README.MD)
 
