@@ -53,6 +53,12 @@ global:
         type: ""
         path: ""
 
+# each pool may define
+# name - pool name
+# queue - name of queue to feed pool from
+# replicas - number of replicas in the deployment
+# profiles - the spring configuration profile names, comma delimited for each pool
+# envOverride - env to use for this pool rather than .env
 pools: []
 
 image:
@@ -60,6 +66,9 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
+
+# environment definition to pass to deployment, should be in yaml format can be replaced by envOverride in each pool
+env: []
 
 # volumes specific to the container
 volumes: []
