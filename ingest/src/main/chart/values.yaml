@@ -8,7 +8,7 @@ global:
       name: ""
       username: "username"
       password: "password"
-    keystrore:
+    keystore:
       name: ""
       # set only if using a keystore from a secret, the path secret key
       # path:
