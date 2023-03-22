@@ -18,11 +18,9 @@ global:
     keystore:
       name: keystore
       alias: alias
-      path: path
       password: password
     truststore:
       name: truststore
-      path: path
       password: password
   volumes:
     pki:
