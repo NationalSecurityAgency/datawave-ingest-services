@@ -77,6 +77,11 @@ spec:
                   name: {{ $.Values.global.secrets.truststore.name }}
                   key: {{ $.Values.global.secrets.truststore.password }}
                   optional: false
+          {{- if .envOverride }}
+          {{- toYaml .envOverride | nindent 12 }}
+          {{- else if $.Values.env }}
+          {{- toYaml $.Values.env | nindent 12 }}
+          {{- end }}
           {{- if $.Values.cmd.override }}
           command:
             {{- range $.Values.cmd.override }}
