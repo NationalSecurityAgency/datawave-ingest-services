@@ -32,6 +32,10 @@ spec:
             {{- toYaml $.Values.securityContext | nindent 12 }}
           image: "{{ $.Values.global.registry }}{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          {{- if .debug }}
+          ports:
+            - containerPort: {{ default 5005 .debug.port }}
+          {{- end }}
           env:
             - name: "SOURCE_QUEUE"
               value: {{ .queue }}
