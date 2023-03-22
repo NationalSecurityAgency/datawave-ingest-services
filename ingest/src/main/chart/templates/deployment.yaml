@@ -25,6 +25,33 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- range $.Values.initContainers }}
+        - name: {{ .name }}
+          image: "{{ $.Values.global.registry }}{{ .image.repository }}:{{ .image.tag }}"
+          {{- if .env }}
+          env:
+            {{- toYaml .env | nindent 12 }}
+          {{- end }}
+          {{- if .volumes }}
+          volumeMounts:
+            {{- range .volumes }}
+            {{- include "common.volumeMount" . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- if .cmd }}
+          command:
+            {{- range .cmd }}
+            - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          {{- if .args }}
+          args:
+            {{- range .args }}
+            - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
       containers:
         - name: {{ $.Chart.Name }}
           workingDir: {{ $.Values.global.volumes.datawave.destination }}
