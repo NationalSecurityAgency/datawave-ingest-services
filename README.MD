@@ -16,7 +16,7 @@ Bundler Service - monitors a directory for sequence/manifest file pairs, based o
 
 ## Dependencies
 * Docker (20.10.12+)
-* Datawave (3.10.1)
+* Datawave (3.40.4)
 
 ## Setup
 Recommended to use an existing K8s environment. See [README](chart/README.MD)
@@ -27,7 +27,7 @@ Recommended to use an existing K8s environment. See [README](chart/README.MD)
 ```bash
 git clone git@github.com:NationalSecurityAgency/datawave.git
 cd datawave
-git checkout 3.10.1
+git checkout 3.40.4
 mvn clean install -DskipTests
 ```
 
