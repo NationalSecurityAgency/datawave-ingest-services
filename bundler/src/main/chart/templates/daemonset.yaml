@@ -40,12 +40,38 @@ spec:
           env:
             - name: "CONFIG_SERVER_URL"
               value: "http://{{ $.Values.global.services.configuration }}:8888/configserver"
+            - name: KEYSTORE_LOCATION
+              {{/*
+                 Set the keystore location from a secret if set, otherwise set from the pki destination and keystore name
+              */}}
+              {{- if $.Values.global.secrets.keystore.path -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.keystore.name }}
+                  key: {{ $.Values.global.secrets.keystore.path }}
+                  optional: false
+              {{- else -}}
+              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.keystore $.Values.keystore }}"
+              {{- end }}
             - name: KEYSTORE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ $.Values.global.secrets.keystore.name }}
                   key: {{ $.Values.global.secrets.keystore.password }}
                   optional: false
+            - name: TRUSTSTORE_LOCATION
+              {{/*
+                 Set the truststore location from a secret if set, otherwise set from the pki destination and truststore name
+              */}}
+              {{- if $.Values.global.secrets.truststore.path -}}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.global.secrets.truststore.name }}
+                  key: {{ $.Values.global.secrets.truststore.path }}
+                  optional: false
+              {{- else -}}
+              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.truststore $.Values.truststore }}"
+              {{- end }}
             - name: TRUSTSTORE_PASSWORD
               valueFrom:
                 secretKeyRef:
