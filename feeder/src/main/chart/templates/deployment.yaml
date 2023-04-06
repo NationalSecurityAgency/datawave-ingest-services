@@ -51,7 +51,7 @@ spec:
                   key: {{ $.Values.global.secrets.keystore.path }}
                   optional: false
               {{- else -}}
-              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.keystore $.Values.keystore }}"
+              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.keystore $.Values.keystore | default "keystore.p12" }}"
               {{- end }}
             - name: KEYSTORE_PASSWORD
               valueFrom:
@@ -70,7 +70,7 @@ spec:
                   key: {{ $.Values.global.secrets.truststore.path }}
                   optional: false
               {{- else -}}
-              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.truststore $.Values.truststore }}"
+              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.truststore $.Values.truststore | default "truststore.jks" }}"
               {{- end }}
             - name: TRUSTSTORE_PASSWORD
               valueFrom:
