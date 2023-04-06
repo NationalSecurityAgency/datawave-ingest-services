@@ -29,6 +29,10 @@ spec:
         {{- range $.Values.initContainers }}
         - name: {{ .name }}
           image: "{{ $.Values.global.registry }}{{ .image.repository }}:{{ .image.tag }}"
+          {{- if .securityContext }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          {{- end }}
           {{- if .env }}
           env:
             {{- toYaml .env | nindent 12 }}
