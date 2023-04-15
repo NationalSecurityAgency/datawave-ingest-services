@@ -30,7 +30,7 @@ spec:
         - name: {{ .Values.messaging.name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.global.registry }}{{ .Values.messaging.image.repository }}:{{ .Values.messaging.image.tag | default .Chart.AppVersion }}"
+          image: "{{ default .Values.global.registry .Values.messaging.image.registry }}{{ .Values.messaging.image.repository }}:{{ .Values.messaging.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.messaging.image.pullPolicy }}
           ports:
             - containerPort: 5672

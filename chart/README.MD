@@ -49,6 +49,8 @@ mvn clean install -Pdocker
 
 Updating values.yaml requires the following configuration. See [values.example.yaml](values.example.yaml) for an example [values.yaml](values.yaml)
 ### Globals
+`global.registry`- default registry name to append to all images
+
 `global.services.configuration`- configuration service address
 
 `global.services.zookeeper` - zookeeper service address
@@ -151,6 +153,17 @@ configuration and messaging services may be deployed as part of this chart or an
 `.ports.amqp` - the amqp port to expose
 
 `.ports.mgmt` - the management port to expose
+
+### Properties on all charts containers and initContainers
+`.image` - section for image references
+
+`.image.registry` - registry override for image
+
+`.image.repository` - comes after registry in image definition
+
+`.image.tag` - the image tag, pulled from the Chart if not specified
+
+`.image.pullPolicy` - sets the pull policy
 
 ###Suggested testing environment 
 [minikube_helm](https://gitlab.evoforge.org/warehouses1/minikube_helm)

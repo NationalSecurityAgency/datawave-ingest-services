@@ -28,7 +28,7 @@ spec:
       initContainers:
         {{- range $.Values.initContainers }}
         - name: {{ .name }}
-          image: "{{ $.Values.global.registry }}{{ .image.repository }}:{{ .image.tag }}"
+          image: "{{ default $.Values.image.registry .image.registry | default $.Values.global.registry }}{{ .image.repository }}:{{ .image.tag }}"
           {{- if .env }}
           env:
             {{- toYaml .env | nindent 12 }}
@@ -57,7 +57,7 @@ spec:
           workingDir: {{ $.Values.global.volumes.datawave.destination }}
           securityContext:
             {{- toYaml $.Values.securityContext | nindent 12 }}
-          image: "{{ $.Values.global.registry }}{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          image: "{{ default $.Values.global.registry $.Values.image.registry }}{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           {{- if .debug }}
           ports:
