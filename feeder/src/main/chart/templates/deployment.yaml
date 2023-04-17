@@ -78,6 +78,11 @@ spec:
                   name: {{ $.Values.global.secrets.truststore.name }}
                   key: {{ $.Values.global.secrets.truststore.password }}
                   optional: false
+            {{- if .envOverride }}
+            {{- toYaml .envOverride | nindent 12 }}
+            {{- else if $.Values.env }}
+            {{- toYaml $.Values.env | nindent 12 }}
+            {{- end }}
           args: ["--spring.output.ansi.enabled=ALWAYS", "--spring.profiles.active={{ .profile }}"]
           volumeMounts:
             {{- include "common.volumeMount" $.Values.global.volumes.pki | nindent 12 }}
