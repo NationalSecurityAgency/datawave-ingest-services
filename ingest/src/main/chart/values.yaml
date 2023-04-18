@@ -6,6 +6,7 @@ global:
   secrets:
     accumulo:
       name: ""
+      # only used if pool[].accumuloUsername or Values.accumuloUsername is not set
       username: "username"
       password: "password"
     keystore:
@@ -64,6 +65,7 @@ global:
 # replicas - number of replicas in the deployment
 # profiles - the spring configuration profile names, comma delimited for each pool
 # envOverride - env to use for this pool rather than .env
+# accumuloUsername - override the accumuloUsername for this pod
 pools: []
 
 # overrides for keystore/truststore names within the global.volumes.pki.destination
@@ -81,6 +83,9 @@ env: []
 
 # volumes specific to the container
 volumes: []
+
+# set an accumuloUsername instead of using a secret
+# accumuloUsername:
 
 imagePullSecrets: []
 nameOverride: ""

@@ -29,6 +29,10 @@ spec:
         {{- range $.Values.initContainers }}
         - name: {{ .name }}
           image: "{{ default $.Values.image.registry .image.registry | default $.Values.global.registry }}{{ .image.repository }}:{{ .image.tag }}"
+          {{- if .securityContext }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          {{- end }}
           {{- if .env }}
           env:
             {{- toYaml .env | nindent 12 }}
@@ -73,11 +77,18 @@ spec:
             - name: "ZOOKEEPER_HOST"
               value: "{{ $.Values.global.services.zookeeper }}"
             - name: "ACCUMULO_USER"
+              {{/*
+                  Set the accumulo username from the pool, then ingest pod, then the secret in global.secrets.accumulo.username
+              */}}
+              {{- if default $.Values.accumuloUsername .accumuloUsername -}}
+              value: {{ default $.Values.accumuloUsername .accumuloUsername }}
+              {{- else if $.Values.global.secrets.accumulo.username -}}
               valueFrom:
                 secretKeyRef:
                   name: {{ $.Values.global.secrets.accumulo.name }}
                   key: {{ $.Values.global.secrets.accumulo.username }}
                   optional: false
+              {{- end }}
             - name: "ACCUMULO_PASSWORD"
               valueFrom:
                 secretKeyRef:
@@ -95,7 +106,7 @@ spec:
                   key: {{ $.Values.global.secrets.keystore.path }}
                   optional: false
               {{- else -}}
-              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.keystore $.Values.keystore }}"
+              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.keystore $.Values.keystore | default "keystore.p12" }}"
               {{- end }}
             - name: "KEYSTORE_PASSWORD"
               valueFrom:
@@ -114,7 +125,7 @@ spec:
                   key: {{ $.Values.global.secrets.truststore.path }}
                   optional: false
               {{- else -}}
-              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.truststore $.Values.truststore }}"
+              value: "file://{{ $.Values.global.volumes.pki.destination }}/{{ default $.Values.global.volumes.pki.truststore $.Values.truststore | default "truststore.jks" }}"
               {{- end }}
             - name: "TRUSTSTORE_PASSWORD"
               valueFrom:
