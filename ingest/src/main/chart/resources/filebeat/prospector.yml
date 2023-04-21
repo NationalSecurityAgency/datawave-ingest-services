@@ -1,0 +1,22 @@
+- type: log
+
+  paths:
+    - "$LOG_LOCATION_REGEX"
+
+  document_type: darkarmy
+  close_inactive: 1h
+  ignore_older: 48h
+  clean_inactive: 96h
+  fields:
+    app.podname: "${POD_NAME}"
+    beats.hostname: "${POD_NAME}"
+    app.hostname: "${LOCAL_HOSTNAME}"
+    service: datawave-ingest
+    logFile: ingestLog
+    instance: ingest
+    application: ingest-service
+  fields_under_root: true
+  multiline.type: pattern
+  multiline.pattern: "^\x1B\\[2m[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}"
+  multiline.negate: true
+  multiline.match: after
