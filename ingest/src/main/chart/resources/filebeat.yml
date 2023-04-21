@@ -1,0 +1,15 @@
+filebeat:
+  config:
+    inputs:
+      path: /usr/share/filebeat/conf.d/*
+      reload.enabled: true
+      reload.period: 60s
+
+processors:
+  - drop_fields:
+      fields: [agents.ephemeral_id, agent.id, agent.name, ecs.version, input.type, /^log\..*/]
+
+output:
+  logstash:
+    hosts: '${LOGSTASH_HOST}'
+    loadbalance: true

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ingest.name" . }}-elk
+data:
+  filebeat.yml: |
+{{ .Files.Get "resources/filebeat.yml " | indent 4 }}
+{{- if .Values.logstash.enabled }}
+  logstash.yml: |
+{{ .Files.Get "resources/logstash.yml " | indent 4 }}
+{{- end }}

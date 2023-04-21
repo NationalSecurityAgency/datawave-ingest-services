@@ -1,0 +1,8 @@
+{{- if .Values.logstash.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ingest.name" . }}-logstash
+data:
+{{- (.Files.Glob "resources/logstash/*").AsConfig | nindent 2 }}
+{{- end }}
