@@ -163,6 +163,7 @@ spec:
             {{- end }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
+        {{ if $.Values.filebeat.enabled -}}
         - name: filebeat
           image: "{{ $.Values.filebeat.imageRepo }}:{{ $.Values.filebeat.imageTag }}"
           securityContext:
@@ -200,6 +201,7 @@ spec:
             - name: logstash-config
               mountPath: "/usr/share/logstash/{{ $.Values.logstash.pipelineDestDir }}"
         {{- end }}
+        {{- end }}
       volumes:
         {{- include "common.volume" $.Values.global.volumes.pki | nindent 8 }}
         {{- include "common.volume" $.Values.global.volumes.hadoop | nindent 8 }}
@@ -221,6 +223,7 @@ spec:
           hostPath:
             path: {{ $.Values.global.volumes.logs.source.path }}
             type: DirectoryOrCreate
+        {{- if $.Values.filebeat.enabled }}
         - name: elk-config
           configMap:
             name: {{ template "ingest.name" $ }}-elk
@@ -231,6 +234,7 @@ spec:
         - name: logstash-config
           configMap:
             name: {{ template "ingest.name" $ }}-logstash
+        {{- end }}
         {{- end }}
       {{- with $.Values.nodeSelector }}
       nodeSelector:

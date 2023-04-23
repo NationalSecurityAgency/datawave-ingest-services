@@ -133,8 +133,10 @@ affinity: {}
 
 # Configure Filebeat Sidecar
 filebeat:
+  # Enable Sidecar Filebeat container
+  enabled: true
   imageRepo: docker.elastic.co/beats/filebeat
-  imageTag: 8.5.1
+  imageTag: 8.7.0
   # For Logstash Sidecar
   logstashHost: "localhost:5044"
   # For logstash Deployment in monitoring namespace
@@ -148,9 +150,10 @@ filebeat:
     runAsGroup: 0
 
 logstash:
+  # Enable Sidecar Logstash Container. Requires Filebeat to be enabled.
   enabled: true
   imageRepo: docker.elastic.co/logstash/logstash
-  imageTag: 8.5.1
+  imageTag: 8.7.0
   pipelineDestDir: "pipeline"
   securityContext:
     runAsNonRoot: true
