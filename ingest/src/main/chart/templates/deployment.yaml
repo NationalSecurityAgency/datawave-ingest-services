@@ -196,7 +196,7 @@ spec:
             {{- toYaml $.Values.logstash.securityContext | nindent 12 }}
           volumeMounts:
             - name: elk-config
-              mountPath: /usr/share/filebeat/logstash.yml
+              mountPath: /usr/share/logstash/config/logstash.yml
               subPath: logstash.yml
             - name: logstash-config
               mountPath: "/usr/share/logstash/{{ $.Values.logstash.pipelineDestDir }}"
