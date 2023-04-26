@@ -1,0 +1,8 @@
+{{- if .Values.filebeat.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "bundler.name" . }}-filebeat
+data:
+{{- (.Files.Glob "resources/filebeat/*").AsConfig | nindent 2 }}
+{{- end }}
