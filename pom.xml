@@ -22,10 +22,12 @@
         <url>https://github.com/NationalSecurityAgency/datawave-ingest-service</url>
     </scm>
     <properties>
+        <version.accumulo>1.10.2</version.accumulo>
         <version.avro>1.8.2</version.avro>
         <version.datawave>3.40.4</version.datawave>
         <version.guava>25.1-jre</version.guava>
-        <version.hadoop>3.3.0</version.hadoop>
+        <version.hadoop>3.3.3</version.hadoop>
+        <version.microservice.accumulo-utils>1.5</version.microservice.accumulo-utils>
         <version.microservice.ingest.common>1.0-SNAPSHOT</version.microservice.ingest.common>
         <version.microservice.metadata-utils>1.9</version.microservice.metadata-utils>
         <version.microservice.starter>1.6.7-2.7.1</version.microservice.starter>
@@ -110,6 +112,16 @@
                 <version>${version.microservice.starter}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.accumulo</groupId>
+                <artifactId>accumulo-core</artifactId>
+                <version>${version.accumulo}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.accumulo</groupId>
+                <artifactId>accumulo-start</artifactId>
+                <version>${version.accumulo}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
                 <version>${version.avro}</version>
@@ -124,6 +136,40 @@
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-client</artifactId>
                 <version>${version.hadoop}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>javax.servlet</artifactId>
+                        <groupId>*</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>*</artifactId>
+                        <groupId>org.mortbay.jetty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>*</artifactId>
+                        <groupId>org.eclipse.jetty</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>*</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>*</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>*</artifactId>
+                        <groupId>org.codehaus.jackson</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>*</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>avro</artifactId>
+                        <groupId>org.apache.avro</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
@@ -254,7 +300,16 @@
         </dependency>
         <dependency>
             <groupId>gov.nsa.datawave.microservice</groupId>
+            <artifactId>accumulo-utils</artifactId>
+            <version>${version.microservice.accumulo-utils}</version>
+        </dependency>
+        <dependency>
+            <groupId>gov.nsa.datawave.microservice</groupId>
             <artifactId>spring-boot-starter-datawave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.avro</groupId>
@@ -285,7 +340,7 @@
     <repositories>
         <repository>
             <!--
-                This repository is a temporary work-around until we can publish artifacts to maven central.
+                This repository is a temRfeporary work-around until we can publish artifacts to maven central.
                 This allows us to retrieve released microservice artifacts from our github repository.
             -->
             <releases>
