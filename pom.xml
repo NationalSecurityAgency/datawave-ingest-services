@@ -24,15 +24,15 @@
   </scm>
   <properties>
     <maven.min-version>3.5.0</maven.min-version>
-    <version.accumulo>1.10.2</version.accumulo>
+    <version.accumulo>2.1.0</version.accumulo>
     <version.avro>1.8.2</version.avro>
-    <version.datawave>3.40.4</version.datawave>
+    <version.datawave>5.1.1</version.datawave>
     <version.guava>25.1-jre</version.guava>
     <version.hadoop>3.3.3</version.hadoop>
-    <version.microservice.accumulo-utils>1.5</version.microservice.accumulo-utils>
+    <version.microservice.accumulo-utils>2.1.1</version.microservice.accumulo-utils>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
     <version.microservice.metadata-utils>1.9</version.microservice.metadata-utils>
-    <version.microservice.starter>1.6.7-2.7.1</version.microservice.starter>
+    <version.microservice.starter>2.0.2-2.7.1</version.microservice.starter>
   </properties>
   <dependencyManagement>
     <dependencies>

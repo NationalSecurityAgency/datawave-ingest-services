@@ -19,8 +19,10 @@ import datawave.microservice.config.accumulo.AccumuloProperties;
 import datawave.microservice.ingest.adapter.ManifestOutputFormat;
 import datawave.microservice.ingest.configuration.IngestProperties;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.client.Accumulo;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -161,9 +163,12 @@ public class IngestDriver {
                 log.info("accumulo zookeepers: " + accumuloProperties.getZookeepers());
                 log.info("accumulo username: " + accumuloProperties.getUsername());
                 
-                CBMutationOutputFormatter.setZooKeeperInstance(job, accumuloProperties.getInstanceName(), accumuloProperties.getZookeepers());
-                CBMutationOutputFormatter.setOutputInfo(job, accumuloProperties.getUsername(),
-                                accumuloProperties.getPassword().getBytes(StandardCharsets.UTF_8), true, null);
+                CBMutationOutputFormatter.configure()
+                                .clientProperties(Accumulo.newClientProperties().to(accumuloProperties.getInstanceName(), accumuloProperties.getZookeepers())
+                                                .as(accumuloProperties.getUsername(),
+                                                                new PasswordToken(accumuloProperties.getPassword().getBytes(StandardCharsets.UTF_8)))
+                                                .build())
+                                .createTables(true).store(job);
                 job.setOutputFormatClass(CBMutationOutputFormatter.class);
                 
                 // get the conf out of the job and overwrite
@@ -230,7 +235,7 @@ public class IngestDriver {
                 // not live ingest, create a manifest for follow on processing
                 createManifest(conf, uuid, attempt, split.getPath().toString());
             }
-        } catch (IOException | InterruptedException | AccumuloSecurityException e) {
+        } catch (IOException | InterruptedException e) {
             String fileName = split.getPath().toString();
             log.error("Unable to process split: " + fileName, e);
             throw new RuntimeException("Failed to process split: " + fileName);
