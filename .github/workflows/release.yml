@@ -1,0 +1,66 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Version of ingest service that is getting released"
+        required: true
+        default: "1.0.0"
+      development_version:
+        description: "Version for next development snapshot"
+        required: true
+        default: "1.1.0-SNAPSHOT"
+
+env:
+  JAVA_VERSION: '8'
+  JAVA_DISTRIBUTION: 'zulu' #This is the default on v1 of the action
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Djava.awt.headless=true"
+
+jobs:
+  # Build the code and run the unit/integration tests.
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+      - name: Build and Run Unit Tests
+        run: mvn -V -B -e -Ddist clean verify
+
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+      - name: Get Current Version
+        run: mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q  -DforceStdout > $current_version
+      - name: Update Maven Version for release
+        run: mvn -V -B -e versions:set -DnewVersion=${{github.event.inputs.release_version}} -DprocessAllModules -DgenerateBackupPoms=false
+      - name: Update helm App version
+        run: |
+          find . -type f -name "Chart.yaml" -exec sed -i 's/version: .*$/version: '${{github.event.inputs.release_version}}'/' {} +
+          find . -type f -name "Chart.yaml" -exec sed -i 's/^appVersion: .*$/appVersion: \"'${{github.event.inputs.release_version}}'\"/' {} +
+      - name: Commit release version
+        run: |
+          git config --global user.name 'GITHUB CI'
+          git config --global user.email 'noreply@github.com'
+          git commit -am "Preparing Release ${{github.event.inputs.release_version}}"
+          git tag -a v${{github.event.inputs.release_version}} -m "Version ${{github.event.inputs.release_version}}"
+      - name: Update to development version
+        run: mvn -V -B -e versions:set -DnewVersion=${{github.event.inputs.development_version}} -DprocessAllModules -DgenerateBackupPoms=false
+      - name: Commit development version
+        run: git commit -am "Preparing Development Version ${{github.event.inputs.development_version}}"
+      - name: Push Changes
+        run: git push origin && git push --tags
