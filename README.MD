@@ -50,4 +50,4 @@ helm install ingest charts/
 ```
 
 ## Releasing
-Seed [RELASING](RELEASING.MD)
+See [RELASING](RELEASING.MD)
