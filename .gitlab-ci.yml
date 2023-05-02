@@ -26,7 +26,7 @@ stages:
   - lint
   - build
   - package
-  - publish
+  - publish-helm-artifactory
 
 image:
   name: $CI_IMAGE
@@ -103,7 +103,7 @@ package-helm:
 ##########################
 
 publish-helm:
-  stage: publish
+  stage: publish-helm-artifactory
   script:
     - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_KEY" -T common-*.tgz "$ARTIFACTORY_REPOSITORY" -k
     - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_KEY" -T feeder-*.tgz "$ARTIFACTORY_REPOSITORY" -k
