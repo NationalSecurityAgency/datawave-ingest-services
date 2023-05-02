@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   workflow_dispatch:
@@ -17,22 +17,11 @@ env:
   JAVA_DISTRIBUTION: 'zulu' #This is the default on v1 of the action
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Djava.awt.headless=true"
 
-jobs:
-  # Build the code and run the unit/integration tests.
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          cache: 'maven'
-      - name: Build and Run Unit Tests
-        run: mvn -V -B -e -Ddist clean verify
+permissions:
+  contents: write
+  repository-projects: read
 
+jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
@@ -44,8 +33,6 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: 'maven'
-      - name: Get Current Version
-        run: mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q  -DforceStdout > $current_version
       - name: Update Maven Version for release
         run: mvn -V -B -e versions:set -DnewVersion=${{github.event.inputs.release_version}} -DprocessAllModules -DgenerateBackupPoms=false
       - name: Update helm App version
