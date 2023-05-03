@@ -16,9 +16,6 @@
         <tag>HEAD</tag>
         <url>https://github.com/NationalSecurityAgency/datawave-ingest-service</url>
     </scm>
-    <properties>
-        <version.microservice.ingest.common>1.0-SNAPSHOT</version.microservice.ingest.common>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>gov.nsa.datawave.microservice</groupId>
