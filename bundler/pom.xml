@@ -4,10 +4,10 @@
     <parent>
         <groupId>gov.nsa.datawave.microservice</groupId>
         <artifactId>ingest-service-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
     <artifactId>bundler-service</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <description>DATAWAVE Ingest Bundler</description>
     <url>https://code.nsa.gov/datawave-ingest-service</url>
     <scm>

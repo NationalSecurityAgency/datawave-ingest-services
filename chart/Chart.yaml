@@ -2,19 +2,19 @@ apiVersion: v2
 name: datawave-ingest-services
 description: An unbrella chart for datawave ingest microservices
 type: application
-version: 0.1.0
-appVersion: "1.0-SNAPSHOT"
+version: 1.0.0
+appVersion: "1.0.0"
 
 dependencies:
   - name: feeder
     repository: file://../feeder/src/main/chart
-    version: 0.1.0
+    version: 1.0.0
   - name: ingest
     repository:  file://../ingest/src/main/chart
-    version: 0.1.0
+    version: 1.0.0
   - name: bundler
     repository: file://../bundler/src/main/chart
-    version: 0.1.0
+    version: 1.0.0
   - name: common
     repository: file://../common/src/main/chart
-    version: 0.1.0
+    version: 1.0.0
