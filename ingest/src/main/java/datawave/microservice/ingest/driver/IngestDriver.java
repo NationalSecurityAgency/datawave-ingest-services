@@ -1,6 +1,7 @@
 package datawave.microservice.ingest.driver;
 
 import datawave.ingest.data.RawRecordContainer;
+import datawave.ingest.data.config.ConfigurationHelper;
 import datawave.ingest.data.config.ingest.AccumuloHelper;
 import datawave.ingest.mapreduce.ContextWrappedStatusReporter;
 import datawave.ingest.mapreduce.EventMapper;
@@ -24,7 +25,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Syncable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobID;
@@ -74,9 +74,29 @@ public class IngestDriver {
     }
     
     /**
-     * Apply ACCUMULO_USER and ACCUMULO_PASSWORD to AccumuloProperties if they exist
+     * Copied from IngestJob.interpolateEnvironment(Configuration)
+     *
+     * Replace all occurrences of DATAWAVE_INGEST_HOME with the specified environment in config
+     *
+     * @param conf
+     * @return
+     */
+    private Configuration interpolateEnvironment(Configuration conf) {
+        String ingestHomeValue = System.getenv("DATAWAVE_INGEST_HOME");
+        if (null == ingestHomeValue) {
+            throw new IllegalArgumentException("DATAWAVE_INGEST_HOME must be set in the environment.");
+        } else {
+            this.log.info("Replacing ${DATAWAVE_INGEST_HOME} with " + ingestHomeValue);
+            return ConfigurationHelper.interpolate(conf, "\\$\\{DATAWAVE_INGEST_HOME\\}", ingestHomeValue);
+        }
+    }
+    
+    /**
+     * Apply ACCUMULO_USER and ACCUMULO_PASSWORD to AccumuloProperties if they exist and interpolate DATAWAVE_INGEST_HOME
      */
     private void init() {
+        interpolateEnvironment(conf);
+        
         String envUser = System.getenv("ACCUMULO_USER");
         if (envUser != null) {
             properties.getAccumuloProperties().setUsername(envUser);
