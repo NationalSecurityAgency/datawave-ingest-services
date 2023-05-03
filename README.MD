@@ -48,3 +48,6 @@ Bundler - See [README](bundler/README.MD)
 ```bash
 helm install ingest charts/
 ```
+
+## Releasing
+See [RELASING](RELEASING.MD)

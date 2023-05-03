@@ -1,0 +1,118 @@
+---
+
+#############
+# Variables #
+#############
+variables:
+  MAVEN_OPTS: >-
+    -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+  MAVEN_CLI_OPTS: >-
+    --batch-mode
+    --errors
+    --fail-at-end
+    --show-version
+    --no-transfer-progress
+
+cache:
+  paths:
+    - .m2/repository
+
+
+#####################################
+# Stages Supported by this Pipeline #
+#####################################
+
+stages:
+  - lint
+  - build
+  - package
+  - publish-helm-artifactory
+
+image:
+  name: $CI_IMAGE
+
+################################
+# Pre-Execution Pipeline Stage #
+################################
+
+debug:
+  stage: .pre
+  script:
+    - export
+    - echo "Docker Image Name -> $DOCKER_IMAGE_NAME"
+    - echo "Docker Image Version -> $DOCKER_IMAGE_VERSION"
+
+
+###############################
+# Linting Helm Pipeline Stage #
+###############################
+
+lint:
+  stage: lint
+  parallel:
+    matrix:
+      - DIRECTORY: common/src/main/chart
+      - DIRECTORY: feeder/src/main/chart
+      - DIRECTORY: ingest/src/main/chart
+      - DIRECTORY: bundler/src/main/chart
+  script:
+    - yum install -y openssl
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - helm dependency update $DIRECTORY
+    - helm lint $DIRECTORY --strict
+
+######################
+# Maven/Docker build #
+######################
+
+build:
+  stage: build
+  image: maven:3-jdk-11
+  script:
+    - 'mvn $MAVEN_CLI_OPTS verify'
+
+
+##########################
+# Package Pipeline Stage #
+##########################
+
+package-helm:
+  stage: package
+  script:
+    - yum install -y openssl
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    - helm dependency update common/src/main/chart; helm package common/src/main/chart
+    - helm dependency update feeder/src/main/chart; helm package feeder/src/main/chart
+    - helm dependency update bundler/src/main/chart; helm package bundler/src/main/chart
+    - helm dependency update ingest/src/main/chart; helm package ingest/src/main/chart
+    - helm dependency update chart; helm package chart
+  artifacts:
+    paths:
+      - common-*.tgz
+      - feeder-*.tgz
+      - bundler-*.tgz
+      - ingest-*.tgz
+      - datawave-ingest-services-*.tgz
+  only:
+    variables:
+      - $PUBLISH
+
+
+##########################
+# Release Pipeline Stage #
+##########################
+
+publish-helm:
+  stage: publish-helm-artifactory
+  script:
+    - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_KEY" -T common-*.tgz "$ARTIFACTORY_REPOSITORY" -k
+    - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_KEY" -T feeder-*.tgz "$ARTIFACTORY_REPOSITORY" -k
+    - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_KEY" -T bundler-*.tgz "$ARTIFACTORY_REPOSITORY" -k
+    - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_KEY" -T ingest-*.tgz "$ARTIFACTORY_REPOSITORY" -k
+    - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_KEY" -T datawave-ingest-services-*.tgz "$ARTIFACTORY_REPOSITORY" -k
+  needs:
+    - job: package-helm
+      artifacts: true
+  only:
+    variables:
+      - $PUBLISH
