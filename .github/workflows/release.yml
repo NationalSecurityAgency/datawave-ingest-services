@@ -22,7 +22,8 @@ permissions:
   repository-projects: read
 
 jobs:
-  update-version:
+  tag-and-release:
+   if: github.actor != 'cfkoehler' && github.actor != 'FineAndDandy' && github.actor != 'jpdahlke' && github.actor != 'apmoriarty' && github.actor != 'ivakegg'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
