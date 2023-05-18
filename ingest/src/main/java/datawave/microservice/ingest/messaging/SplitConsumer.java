@@ -88,7 +88,7 @@ public class SplitConsumer {
                     log.warn("Failed to process ingest for split: {}" + fileName, e);
                 }
                 long duration = System.currentTimeMillis() - start;
-                log.info("Completed uuid: {} attempt: {} file: {} in {}ms", messageUuid, attempt, fileSplit.getPath(), duration);
+                log.info("Completed uuid: {} attempt: {} file: {} in {} ms", messageUuid, attempt, fileSplit.getPath(), duration);
             }
         };
     }
