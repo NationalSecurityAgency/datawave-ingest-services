@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>gov.nsa.datawave.microservice</groupId>
-        <artifactId>ingest-service-parent</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
-    </parent>
-    <artifactId>ingest-common</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>gov.nsa.datawave.microservice</groupId>
+    <artifactId>ingest-service-parent</artifactId>
     <version>1.1.0-SNAPSHOT</version>
-    <description>DATAWAVE Ingest Common</description>
-    <url>https://code.nsa.gov/datawave-ingest-service</url>
-    <scm>
-        <connection>scm:git:https://github.com/NationalSecurityAgency/datawave-ingest-service.git</connection>
-        <developerConnection>scm:git:git@github.com:NationalSecurityAgency/datawave-ingest-service.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/NationalSecurityAgency/datawave-ingest-service</url>
-    </scm>
-    <repositories>
-        <repository>
-            <!--
+  </parent>
+  <artifactId>ingest-common</artifactId>
+  <version>1.1.0-SNAPSHOT</version>
+  <description>DATAWAVE Ingest Common</description>
+  <url>https://code.nsa.gov/datawave-ingest-service</url>
+  <scm>
+    <connection>scm:git:https://github.com/NationalSecurityAgency/datawave-ingest-service.git</connection>
+    <developerConnection>scm:git:git@github.com:NationalSecurityAgency/datawave-ingest-service.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/NationalSecurityAgency/datawave-ingest-service</url>
+  </scm>
+  <repositories>
+    <repository>
+      <!--
                 This repository is a temporary work-around until we can public artifacts to maven central.
                 This allows us to retrieve released microservice artifacts from our github repository.
             -->
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>datawave-github-mvn-repo</id>
-            <url>https://raw.githubusercontent.com/NationalSecurityAgency/datawave/mvn-repo</url>
-        </repository>
-    </repositories>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>datawave-github-mvn-repo</id>
+      <url>https://raw.githubusercontent.com/NationalSecurityAgency/datawave/mvn-repo</url>
+    </repository>
+  </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
