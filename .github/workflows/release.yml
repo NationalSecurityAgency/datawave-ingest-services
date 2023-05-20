@@ -34,6 +34,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: 'maven'
+          token: ${{secrets.PAT}}
       - name: Update Maven Version for release
         run: mvn -V -B -e versions:set -DnewVersion=${{github.event.inputs.release_version}} -DprocessAllModules -DgenerateBackupPoms=false
       - name: Update helm App version
