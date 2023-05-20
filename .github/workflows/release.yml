@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   tag-and-release:
-    if: github.actor != 'cfkoehler' && github.actor != 'FineAndDandy' && github.actor != 'jpdahlke' && github.actor != 'apmoriarty' && github.actor != 'ivakegg'
+    if: contains('${{ vars.RELEASE_USERS }}', github.actor)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
