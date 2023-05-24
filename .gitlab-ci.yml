@@ -67,7 +67,7 @@ lint:
 
 build:
   stage: build
-  image: maven:3-jdk-11
+  image: $CI_BUILD_IMAGE
   script:
     - 'mvn $MAVEN_CLI_OPTS verify'
 

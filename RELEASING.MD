@@ -44,5 +44,6 @@ After the github action has run and created a release tag then the versioned art
 - Minimal build validation
 - Required gitlab CI variables:
     - `CI_IMAGE`: Default image that is used for the gitlab executer
+    - `CI_BUILD_IMAGE`: Image for the java build stage of gitlab CI
     - `ARTIFACTORY_REPOSITORY`: Artifactory Repository to publish helm charts 
     - `ARTIFACTORY_KEY`: Secret key for publish authorization
