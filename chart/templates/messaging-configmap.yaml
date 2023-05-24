@@ -18,6 +18,6 @@ data:
     [
       {rabbit, [
         {consumer_timeout, undefined}
-      [}
+      ]}
     ].
 {{- end }}
