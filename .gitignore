@@ -1,5 +1,5 @@
 .idea
-.iml
+*.iml
 */.iml
 ingest/target
 bundler/target

@@ -8,9 +8,16 @@ metadata:
 
 data:
   enabled_plugins: |
-    [rabbitmq_management].
+    [rabbitmq_management, rabbitmq_shovel, rabbitmq_shovel_management].
 
   rabbitmq.conf: |
     loopback_users.guest = false
     queue_master_locator = min-masters
+
+  advanced.config: |
+    [
+      {rabbit, [
+        {consumer_timeout, undefined}
+      ]}
+    ].
 {{- end }}

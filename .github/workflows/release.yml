@@ -22,7 +22,8 @@ permissions:
   repository-projects: read
 
 jobs:
-  update-version:
+  tag-and-release:
+    if: contains('${{ vars.RELEASE_USERS }}', github.actor)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

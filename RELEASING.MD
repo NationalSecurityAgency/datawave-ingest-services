@@ -10,7 +10,10 @@ The application follows Semantiv Versioning ([semver.org](semver.org)) for the j
 # GitHub Release Process
 
 ## Triggering a release
-Once all the changes are merged into the master branch and all CI checks are passing the the application is ready for release.
+Once all the changes are merged into the master branch and all CI checks are passing the the application is ready for release. 
+
+**GitHub Release action can only be triggered by users in the `RELEASE_USERS` variable list**
+
 1) Navigate to the Release Action under the github actions tab: [RELEASE ACTION](github.com/NationalSecurityAgency/datawave-ingst-services/actions/workflows/release.yml)
 2) Click the `Run Workflow` button
 3) For Major and Minor releases run workflow from `master` branch

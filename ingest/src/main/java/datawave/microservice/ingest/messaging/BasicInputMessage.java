@@ -68,9 +68,9 @@ public class BasicInputMessage implements InputMessage {
         }
         
         Path filePath = new Path(splits[0]);
-        log.info("got file path: " + filePath);
-        log.info("got input format class: " + splits[1]);
-        log.info("got data name: " + splits[2]);
+        log.info("got file path: {}", filePath);
+        log.info("got input format class: {}", splits[1]);
+        log.info("got data name: {}", splits[2]);
         
         dataName = splits[2];
         
