@@ -38,7 +38,7 @@ public class SplitConsumer {
         return s -> {
             String message = s.getPayload();
             if (log.isTraceEnabled()) {
-                log.trace("got message: " + message);
+                log.trace("got message: {}", message);
             }
             
             BasicInputMessage basicInputMessage = new BasicInputMessage(properties, getConf());
@@ -85,10 +85,10 @@ public class SplitConsumer {
                         fileName = fileSplit.getPath().toString();
                     }
                     
-                    log.warn("Failed to process ingest for split: " + fileName, e);
+                    log.warn("Failed to process ingest for split: {}", fileName, e);
                 }
                 long duration = System.currentTimeMillis() - start;
-                log.info("Completed uuid:" + messageUuid + " attempt: " + attempt + " file: " + fileSplit.getPath() + " in " + duration + " ms");
+                log.info("Completed uuid: {} attempt: {} file: {} in {} ms", messageUuid, attempt, fileSplit.getPath(), duration);
             }
         };
     }
@@ -107,17 +107,17 @@ public class SplitConsumer {
                 File f = new File(fsConfigResource);
                 if (f.isFile()) {
                     conf.addResource(new Path(fsConfigResource));
-                    log.info("Added resource: " + fsConfigResource);
+                    log.info("Added resource: {}", fsConfigResource);
                 } else if (f.isDirectory()) {
                     if (properties.getResourceDirPatterns() != null) {
                         for (String patternString : properties.getResourceDirPatterns()) {
                             dirPatterns.add(Pattern.compile(patternString));
                         }
                     }
-                    log.info("Adding resource directory: " + fsConfigResource);
+                    log.info("Adding resource directory: {}", fsConfigResource);
                     for (File child : f.listFiles()) {
                         if (!child.isDirectory() && child.exists()) {
-                            boolean matches = dirPatterns.size() == 0;
+                            boolean matches = dirPatterns.isEmpty();
                             
                             for (Pattern p : dirPatterns) {
                                 if (p.matcher(child.toString()).matches()) {
@@ -127,7 +127,7 @@ public class SplitConsumer {
                             
                             if (matches) {
                                 conf.addResource(new Path(child.toString()));
-                                log.info("Adding resource directory file: " + child.toString());
+                                log.info("Adding resource directory file: {}", child);
                             }
                         }
                     }
