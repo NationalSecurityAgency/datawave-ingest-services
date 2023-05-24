@@ -95,7 +95,7 @@ public class IngestDriver {
      * Apply ACCUMULO_USER and ACCUMULO_PASSWORD to AccumuloProperties if they exist and interpolate DATAWAVE_INGEST_HOME
      */
     private void init() {
-        interpolateEnvironment(conf);
+        conf = interpolateEnvironment(conf);
         
         String envUser = System.getenv("ACCUMULO_USER");
         if (envUser != null) {
