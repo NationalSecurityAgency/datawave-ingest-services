@@ -120,7 +120,13 @@ public class IngestDriver {
         AccumuloHelper.setInstanceName(conf, properties.getAccumuloProperties().getInstanceName());
         
         // setup table names after accumulo parameters are set
-        new TableConfigurationUtil(conf);
+        TableConfigurationUtil tableUtil = new TableConfigurationUtil(conf);
+        tableUtil.registerTableNamesFromConfigFiles(conf);
+        try {
+            tableUtil.serializeTableConfgurationIntoConf(conf);
+        } catch (IOException e) {
+            log.error("Failed to serialize table configs", e);
+        }
     }
     
     public void ingest(String uuid, int attempt, FileSplit split) throws IOException, InterruptedException {
