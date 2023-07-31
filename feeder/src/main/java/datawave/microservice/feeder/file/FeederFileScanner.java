@@ -21,7 +21,7 @@ import java.io.IOException;
 public class FeederFileScanner extends FileScanner {
     private final FeederProperties feederProperties;
     private final MessageSupplier feedSource;
-
+    
     @Autowired
     public FeederFileScanner(Configuration conf, FileScannerProperties fileScannerProperties, FeederProperties feederProperties, MessageSupplier feedSource) {
         super(conf, fileScannerProperties);
@@ -32,7 +32,7 @@ public class FeederFileScanner extends FileScanner {
     @Override
     protected void process(Path workingFile) throws IOException {
         Path targetDir = new Path(feederProperties.getTargetDir());
-        log.info("would have sent message: {},{},{}", workingFile,feederProperties.getInputFormatClass(),feederProperties.getDataType());
+        log.info("would have sent message: {},{},{}", workingFile, feederProperties.getInputFormatClass(), feederProperties.getDataType());
         
         Path fileTarget = new Path(targetDir, workingFile.getName());
         if (feederProperties.isPreservePath()) {
@@ -48,23 +48,14 @@ public class FeederFileScanner extends FileScanner {
         log.info("Moving file: {} to: {}", workingFile, fileTarget);
         FileSystem fs = FileSystem.get(workingFile.toUri(), conf);
         Path parentDir = fileTarget.getParent();
-        if (!fs.exists(parentDir)) {
-            if (!fs.mkdirs(parentDir)) {
-                log.warn("Failed to create {}", parentDir);
-                throw new IOException("Failed to create " + parentDir);
-            }
+        if (!fs.exists(parentDir) && !fs.mkdirs(parentDir)) {
+            log.warn("Failed to create {}", parentDir);
+            throw new IOException("Failed to create " + parentDir);
         }
         
         if (fs.rename(workingFile, fileTarget)) {
-            while (!feedSource.send(MessageBuilder.withPayload(fileTarget + "," + feederProperties.getInputFormatClass() + "," + feederProperties.getDataType())
-                            .build())) {
-                try {
-                    // TODO configurable?
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    // no-op
-                }
-            }
+            feedSource.send(MessageBuilder.withPayload(fileTarget + "," + feederProperties.getInputFormatClass() + "," + feederProperties.getDataType())
+                            .build());
         } else {
             log.warn("Failed to rename {} to {}", workingFile, fileTarget);
             throw new IOException("Failed to rename " + workingFile + " to " + fileTarget);
