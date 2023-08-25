@@ -55,8 +55,7 @@ public class FeederFileScanner extends FileScanner {
         
         if (fs.rename(workingFile, fileTarget)) {
             String message = fileTarget + "," + feederProperties.getInputFormatClass() + "," + feederProperties.getDataType();
-            boolean sendResult = feedSource.send(MessageBuilder.withPayload(message).build());
-            if (!sendResult) {
+            if (!feedSource.send(MessageBuilder.withPayload(message).build())) {
                 log.error("Failure sending message: {}", message);
             }
         } else {
