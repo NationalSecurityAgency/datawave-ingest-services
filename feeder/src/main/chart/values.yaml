@@ -31,6 +31,8 @@ global:
 
 feeds: []
 
+workingDir: /
+
 image:
   repository: "datawave/feeder-service"
   pullPolicy: IfNotPresent
