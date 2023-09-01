@@ -23,7 +23,7 @@
     <url>https://github.com/NationalSecurityAgency/datawave-ingest-service</url>
   </scm>
   <properties>
-    <version.accumulo>2.1.0</version.accumulo>
+    <version.accumulo>2.1.1</version.accumulo>
     <version.avro>1.8.2</version.avro>
     <version.datawave>5.7.0</version.datawave>
     <version.guava>25.1-jre</version.guava>
@@ -254,6 +254,10 @@
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>*</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.zookeeper</groupId>
