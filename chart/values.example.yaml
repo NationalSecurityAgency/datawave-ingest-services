@@ -227,7 +227,7 @@ messaging:
   image:
     repository: rabbitmq
     pullPolicy: IfNotPresent
-    tag: 3.7.7-alpine
+    tag: 3.11.4-alpine
   ports:
     amqp: 5672
     mgmt: 15672
