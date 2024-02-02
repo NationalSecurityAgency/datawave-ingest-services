@@ -24,14 +24,14 @@
   </scm>
   <properties>
     <version.accumulo>2.1.1</version.accumulo>
-    <version.avro>1.8.2</version.avro>
-    <version.datawave>5.11.6</version.datawave>
+    <version.avro>1.11.3</version.avro>
+    <version.datawave>6.5.1</version.datawave>
     <version.guava>25.1-jre</version.guava>
-    <version.hadoop>3.3.3</version.hadoop>
-    <version.microservice.accumulo-utils>2.1.1</version.microservice.accumulo-utils>
+    <version.hadoop>3.3.4</version.hadoop>
+    <version.microservice.accumulo-utils>2.1.2</version.microservice.accumulo-utils>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
     <version.microservice.metadata-utils>1.9</version.microservice.metadata-utils>
-    <version.microservice.starter>2.0.2-2.7.1</version.microservice.starter>
+    <version.microservice.starter>3.0.0</version.microservice.starter>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -576,7 +576,7 @@
     <dependency>
       <groupId>ch.qos.reload4j</groupId>
       <artifactId>reload4j</artifactId>
-      <version>1.2.19</version>
+      <version>1.2.25</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
