@@ -1,6 +1,7 @@
 package datawave.microservice.ingest.messaging;
 
-import datawave.microservice.ingest.configuration.IngestProperties;
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -11,7 +12,7 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import datawave.microservice.ingest.configuration.IngestProperties;
 
 @org.springframework.context.annotation.Configuration
 public class BasicInputMessage implements InputMessage {
