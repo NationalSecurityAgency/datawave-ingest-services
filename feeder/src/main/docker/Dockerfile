@@ -5,8 +5,7 @@ LABEL version=${project.version} \
       description="${project.description}"
 
 ADD ${project.build.finalName}-exec.jar /app.jar
-RUN apk add libc6-compat curl
-RUN apk add bash
+RUN apk add libc6-compat curl bash
 ENV DEST_QUEUE="${DEST_QUEUE:-ingest}"
 ENV KEYSTORE_LOCATION=${KEYSTORE_LOCATION}
 ENV KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD}
