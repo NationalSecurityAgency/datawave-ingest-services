@@ -1,12 +1,11 @@
-FROM azul/zulu-openjdk-alpine:8
+FROM azul/zulu-openjdk-alpine:11
 
 LABEL version=${project.version} \
       run="docker run ${docker.image.prefix}${project.artifactId}:latest" \
       description="${project.description}"
 
 ADD ${project.build.finalName}-exec.jar /app.jar
-RUN apk add libc6-compat curl
-RUN apk add bash
+RUN apk add libc6-compat curl bash
 ENV SOURCE_QUEUE=${SOURCE_QUEUE:-ingest}
 ENV OUTPUT_DIR=${OUTPUT_DIR}
 ENV ACCUMULO_USER=${ACCUMULO_USER}
