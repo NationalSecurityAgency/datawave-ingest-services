@@ -1,28 +1,14 @@
 package datawave.microservice.ingest.driver;
 
-import datawave.ingest.data.RawRecordContainer;
-import datawave.ingest.data.config.ConfigurationHelper;
-import datawave.ingest.data.config.ingest.AccumuloHelper;
-import datawave.ingest.mapreduce.ContextWrappedStatusReporter;
-import datawave.ingest.mapreduce.EventMapper;
-import datawave.ingest.mapreduce.job.BulkIngestKey;
-import datawave.ingest.mapreduce.job.CBMutationOutputFormatter;
-import datawave.ingest.mapreduce.job.TableConfigurationUtil;
-import datawave.ingest.mapreduce.job.reduce.BulkIngestKeyDedupeCombiner;
-import datawave.ingest.mapreduce.job.writer.AggregatingContextWriter;
-import datawave.ingest.mapreduce.job.writer.ChainedContextWriter;
-import datawave.ingest.mapreduce.job.writer.ContextWriter;
-import datawave.ingest.mapreduce.job.writer.DedupeContextWriter;
-import datawave.ingest.mapreduce.job.writer.LiveContextWriter;
-import datawave.ingest.mapreduce.job.writer.TableCachingContextWriter;
-import datawave.microservice.config.accumulo.AccumuloProperties;
-import datawave.microservice.ingest.adapter.ManifestOutputFormat;
-import datawave.microservice.ingest.configuration.IngestProperties;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.accumulo.core.client.Accumulo;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.client.Accumulo;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -48,9 +34,24 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import datawave.ingest.data.RawRecordContainer;
+import datawave.ingest.data.config.ConfigurationHelper;
+import datawave.ingest.data.config.ingest.AccumuloHelper;
+import datawave.ingest.mapreduce.ContextWrappedStatusReporter;
+import datawave.ingest.mapreduce.EventMapper;
+import datawave.ingest.mapreduce.job.BulkIngestKey;
+import datawave.ingest.mapreduce.job.CBMutationOutputFormatter;
+import datawave.ingest.mapreduce.job.TableConfigurationUtil;
+import datawave.ingest.mapreduce.job.reduce.BulkIngestKeyDedupeCombiner;
+import datawave.ingest.mapreduce.job.writer.AggregatingContextWriter;
+import datawave.ingest.mapreduce.job.writer.ChainedContextWriter;
+import datawave.ingest.mapreduce.job.writer.ContextWriter;
+import datawave.ingest.mapreduce.job.writer.DedupeContextWriter;
+import datawave.ingest.mapreduce.job.writer.LiveContextWriter;
+import datawave.ingest.mapreduce.job.writer.TableCachingContextWriter;
+import datawave.microservice.config.accumulo.AccumuloProperties;
+import datawave.microservice.ingest.adapter.ManifestOutputFormat;
+import datawave.microservice.ingest.configuration.IngestProperties;
 
 /**
  * Provides a wrapper for executing DATAWAVE ingest code outside the MapReduce environment. The class will translate the IngestProperties and Hadoop

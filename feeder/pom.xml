@@ -5,6 +5,7 @@
     <groupId>gov.nsa.datawave.microservice</groupId>
     <artifactId>ingest-service-parent</artifactId>
     <version>2.4.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>feeder-service</artifactId>
   <version>2.4.0-SNAPSHOT</version>
@@ -25,7 +26,7 @@
   <repositories>
     <repository>
       <!--
-                This repository is a temporary work-around until we can public artifacts to maven central.
+                This repository is a temporary work-around until we can publish artifacts to maven central.
                 This allows us to retrieve released microservice artifacts from our github repository.
             -->
       <releases>
