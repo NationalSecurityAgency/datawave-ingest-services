@@ -1,9 +1,12 @@
 package datawave.microservice.bundler;
 
-import datawave.ingest.mapreduce.job.BulkIngestKey;
-import datawave.microservice.bundler.configuration.BundlerProperties;
-import datawave.microservice.file.FileScanner;
-import datawave.microservice.file.configuration.FileScannerProperties;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
@@ -12,12 +15,10 @@ import org.apache.hadoop.io.Writable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import datawave.ingest.mapreduce.job.BulkIngestKey;
+import datawave.microservice.bundler.configuration.BundlerProperties;
+import datawave.microservice.file.FileScanner;
+import datawave.microservice.file.configuration.FileScannerProperties;
 
 /**
  * BundleFileScanner expects to monitor an output directory from the ingest service. Output file will be a pair of an output sequence file and matching

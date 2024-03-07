@@ -1,13 +1,13 @@
 package datawave.microservice.ingest.adapter;
 
+import java.io.IOException;
+import java.net.URI;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.security.Credentials;
-
-import java.io.IOException;
-import java.net.URI;
 
 public class IngestSplitContext implements TaskAttemptContext {
     @Override
