@@ -15,7 +15,7 @@ on:
 env:
   JAVA_VERSION: '11'
   JAVA_DISTRIBUTION: 'zulu' #This is the default on v1 of the action
-  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Djava.awt.headless=true"
+  MAVEN_OPTS: "-Djansi.force=true -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Djava.awt.headless=true -XX:ThreadStackSize=1m"
 
 permissions:
   contents: write
@@ -35,7 +35,9 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: 'maven'
       - name: Update Maven Version for release
-        run: mvn -V -B -e versions:set -DnewVersion=${{github.event.inputs.release_version}} -DprocessAllModules -DgenerateBackupPoms=false
+        run: mvn -s $GITHUB_WORKSPACE/.github/workflows/settings.xml -V -B -e versions:set -DnewVersion=${{github.event.inputs.release_version}} -DprocessAllModules -DgenerateBackupPoms=false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Update helm App version
         run: |
           find . -type f -name "Chart.yaml" -exec sed -i 's/version: .*$/version: '${{github.event.inputs.release_version}}'/' {} +
@@ -47,7 +49,10 @@ jobs:
           git commit -am "Preparing Release ${{github.event.inputs.release_version}}"
           git tag -a v${{github.event.inputs.release_version}} -m "Version ${{github.event.inputs.release_version}}"
       - name: Update to development version
-        run: mvn -V -B -e versions:set -DnewVersion=${{github.event.inputs.development_version}} -DprocessAllModules -DgenerateBackupPoms=false
+        run: mvn -s $GITHUB_WORKSPACE/.github/workflows/settings.xml -V -B -e versions:set -DnewVersion=${{github.event.inputs.development_version}} -DprocessAllModules -DgenerateBackupPoms=false
+        env:
+          USER_NAME: ${{ secrets.USER_NAME }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       - name: Commit development version
         run: git commit -am "Preparing Development Version ${{github.event.inputs.development_version}}"
       - name: Push Changes
