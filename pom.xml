@@ -25,10 +25,10 @@
   <properties>
     <version.accumulo>2.1.1</version.accumulo>
     <version.avro>1.8.2</version.avro>
-    <version.datawave>5.11.6</version.datawave>
+    <version.datawave>6.9.3</version.datawave>
     <version.guava>25.1-jre</version.guava>
     <version.hadoop>3.3.3</version.hadoop>
-    <version.microservice.accumulo-utils>2.1.1</version.microservice.accumulo-utils>
+    <version.microservice.accumulo-utils>3.0.2</version.microservice.accumulo-utils>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
     <version.microservice.metadata-utils>1.9</version.microservice.metadata-utils>
     <version.microservice.starter>2.0.2-2.7.1</version.microservice.starter>
@@ -278,10 +278,6 @@
           <exclusion>
             <groupId>org.slf4j</groupId>
             <artifactId>*</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -556,6 +552,11 @@
         <groupId>org.locationtech.jts</groupId>
         <artifactId>jts-core</artifactId>
         <version>1.16.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xerial.snappy</groupId>
+        <artifactId>snappy-java</artifactId>
+        <version>1.1.8.2</version>
       </dependency>
       <dependency>
         <groupId>org.apache.hadoop</groupId>
