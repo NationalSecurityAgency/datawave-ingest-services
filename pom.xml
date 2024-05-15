@@ -648,20 +648,48 @@
   </dependencies>
   <repositories>
     <repository>
-      <!--
-                This repository is a temporary work-around until we can publish artifacts to maven central.
-                This allows us to retrieve released microservice artifacts from our github repository.
-            -->
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-      <id>datawave-github-mvn-repo</id>
-      <url>https://raw.githubusercontent.com/NationalSecurityAgency/datawave/mvn-repo</url>
+      <id>github-datawave</id>
+      <url>https://maven.pkg.github.com/NationalSecurityAgency/datawave</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>osgeo-release</id>
+      <name>Open Source Geospatial Foundation Repository</name>
+      <url>https://repo.osgeo.org/repository/release/</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>cloudera</id>
+      <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+    </repository>
+    <repository>
+      <id>geosolutions</id>
+      <name>GeoSolutions Repository</name>
+      <url>https://maven.geo-solutions.it</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>github-datawave</id>
+      <url>https://maven.pkg.github.com/NationalSecurityAgency/datawave</url>
+    </pluginRepository>
+  </pluginRepositories>
   <build>
     <pluginManagement>
       <plugins>
