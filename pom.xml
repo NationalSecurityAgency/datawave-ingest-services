@@ -30,7 +30,6 @@
     <version.hadoop>3.3.3</version.hadoop>
     <version.microservice.accumulo-utils>3.0.2</version.microservice.accumulo-utils>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
-    <version.microservice.metadata-utils>1.9</version.microservice.metadata-utils>
     <version.microservice.starter>2.0.2-2.7.1</version.microservice.starter>
   </properties>
   <dependencyManagement>
@@ -187,11 +186,6 @@
       </dependency>
       <dependency>
         <groupId>gov.nsa.datawave.microservice</groupId>
-        <artifactId>common-utils</artifactId>
-        <version>1.1</version>
-      </dependency>
-      <dependency>
-        <groupId>gov.nsa.datawave.microservice</groupId>
         <artifactId>ingest-common</artifactId>
         <version>${version.microservice.ingest.common}</version>
         <exclusions>
@@ -205,7 +199,6 @@
       <dependency>
         <groupId>gov.nsa.datawave.microservice</groupId>
         <artifactId>metadata-utils</artifactId>
-        <version>${version.microservice.metadata-utils}</version>
       </dependency>
       <dependency>
         <groupId>gov.nsa.datawave.microservice</groupId>
