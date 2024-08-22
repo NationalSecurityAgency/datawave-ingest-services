@@ -1,0 +1,21 @@
+---
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    registries:
+      - github-datawave
+    schedule:
+      interval: daily
+    allow:
+      - dependency-name: "gov.nsa.datawave"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: dependencies
+registries:
+  github-datawave:
+    type: maven-repository
+    url: https://maven.pkg.github.com/NationalSecurityAgency/datawave
+    username: ${{env.BURRITO_FIRSTMATE_USER}}
+    password: ${{secrets.BURRITO_FIRSTMATE_TOKEN}}
+
