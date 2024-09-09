@@ -25,7 +25,7 @@
   <properties>
     <version.accumulo>2.1.1</version.accumulo>
     <version.avro>1.8.2</version.avro>
-    <version.datawave>6.9.3</version.datawave>
+    <version.datawave>7.3.0</version.datawave>
     <version.guava>32.0.0-jre</version.guava>
     <version.hadoop>3.3.3</version.hadoop>
     <version.microservice.accumulo-utils>3.0.2</version.microservice.accumulo-utils>
@@ -373,6 +373,10 @@
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>*</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>dnsjava</groupId>
+            <artifactId>dnsjava</artifactId>
           </exclusion>
           <exclusion>
             <groupId>log4j</groupId>
