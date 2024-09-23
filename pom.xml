@@ -30,7 +30,7 @@
     <version.hadoop>3.3.3</version.hadoop>
     <version.microservice.accumulo-utils>4.0.1</version.microservice.accumulo-utils>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
-    <version.microservice.starter>4.0.2</version.microservice.starter>
+    <version.microservice.starter>4.0.3</version.microservice.starter>
   </properties>
   <dependencyManagement>
     <dependencies>
