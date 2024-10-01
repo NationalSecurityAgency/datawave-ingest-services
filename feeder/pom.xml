@@ -58,6 +58,9 @@
           <plugin>
             <groupId>com.spotify</groupId>
             <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <imageName>${docker.registry}datawave/feeder-service</imageName>
+            </configuration>
           </plugin>
         </plugins>
       </build>

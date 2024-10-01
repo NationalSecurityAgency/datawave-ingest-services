@@ -21,6 +21,13 @@ Volumes
   {{- else if eq .source.type "configmap" }}
   configMap:
     name: {{ .source.name }}
+  {{- else if eq .source.type "projected" }}
+  projected:
+    sources:
+    {{- range .source.maps }}
+      - configMap:
+          name: {{ . }}
+    {{- end }}
   {{- else if eq .source.type "secret" }}
   secret:
     secretName: {{ .source.name }}

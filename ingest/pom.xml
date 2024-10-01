@@ -25,6 +25,10 @@
       <groupId>gov.nsa.datawave</groupId>
       <artifactId>datawave-ingest-csv</artifactId>
     </dependency>
+    <dependency>
+      <groupId>gov.nsa.datawave</groupId>
+      <artifactId>datawave-ingest-json</artifactId>
+    </dependency>
   </dependencies>
   <repositories>
     <repository>
@@ -62,6 +66,9 @@
           <plugin>
             <groupId>com.spotify</groupId>
             <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <imageName>${docker.registry}datawave/ingest-service</imageName>
+            </configuration>
           </plugin>
         </plugins>
       </build>
