@@ -1,97 +1,62 @@
-# global overrides for all microservices
+# dwv references are using the datawave-helm-chart repo resources unless otherwise indicated
 global:
-  # OPTIONAL use as a prefix for a registry if in use, otherwise leave blank
-  registry: ""
-  # External service links
   services:
-    # REQUIRED configuration service name/endpoint (all services) this should match configuration.name if built-in configuration is enabled
+    # use embedded configuration service
     configuration: ingest-configuration
-    # REQUIRED rabbitmq service name/endpoint for configservice application.yml this should match messaging.name if built-in enabled
+    # use embedded rabbitmq
     rabbitmq: ingest-rabbitmq
-    # REQUIRED zookeeper service name/endpoint for ingest services
+    # use dwv zookeeper
     zookeeper: zookeeper
-  # Externally defined secret specification
   secrets:
-    # REQUIRED accumulo secret
     accumulo:
-      # REQUIRED secret name containing accumulo user/password
       name: accumulo
-      # REQUIRED username for accumulo user
       username: username
-      # REQUIRED password for accumulo user
       password: password
-    # REQUIRED keystore secret
     keystore:
-      # REQUIRED keystore name
       name: keystore
-      # REQUIRED alias key
       alias: alias
-      # REQUIRED path key
       path: path
-      # REQUIRED password key
       password: password
-    # REQUIRED truststore secret
     truststore:
-      # REQUIRED keystore name
       name: truststore
-      # REQUIRED path key
       path: path
-      # REQUIRED password key
       password: password
-  # Volume definitions
   volumes:
-    # REQUIRED (Feeder/Ingest/Bundler) PKI volume
     pki:
-      # PKI volume name
       name: pki
-      # REQUIRED mount location for pki
       destination: /data/certs
-      # OPTIONAL specify if the volume is ready only
       readOnly: true
       source:
-        # REQUIRED must be one of secret/configmap/hostPath
         type: secret
-        # REQUIRED with type secret or configmap
         name: datawave-certificates-secret
-    # REQUIRED (Feeder/Ingest/Bundler) HADOOP config volume
     hadoop:
-      # REQUIRED HADOOP config volume name
       name: hadoop
-      # REQUIRED mount location for hadoop
       destination: /etc/hadoop/conf
-      # OPTIONAL specify if the volume is ready only
       readOnly: true
       source:
-        # REQUIRED must be one of secret/configmap/hostPath
         type: configmap
-        # REQUIRED with type secret or configmap
-        name: dwv-hadoop
-    # REQUIRED (Feeder/Ingest/Bundler) logs volume
+        # use dwv hadoop config
+        name: dwv-hadoop-config
     logs:
-      # REQUIRED logs mount name
       name: logs
-      # REQUIRED mount location for logs
       destination: /logs
       source:
-        # REQUIRED must be one of secret/configmap/hostPath
         type: hostPath
-        # REQUIRED when specifying hostPath, host path to mount into destination
         path: /srv/logs
-    # REQUIRED (Ingest) datawave ingest volume
     datawave:
-      # REQUIRED datawave-config name
       name: datawave-conf
-      # REQUIRED mount location for datawave-config
       destination: /etc/datawave/conf
-      # OPTIONAL specify if the volume is ready only
       readOnly: true
       source:
-        # REQUIRED must be one of secret/configmap/hostPath
+        # aggregate multiple dwv configmaps
         type: projected
         maps:
+          - datawave-general-ingest-config
           - dwv-ingest-ingest-config-configmap
           - dwv-ingest-data-types-configmap
-          - dwv-all-ingest
+          #- dwv-ingest-ingest-config-configmap
+          #- dwv-ingest-data-types-configmap
+          #- dwv-all-ingest
     # REQUIRED (Ingest)
     output:
       # REQUIRED Output location volume name
@@ -134,6 +99,9 @@ global:
         name: rabbit-configmap
 # Feeder definition
 feeder:
+  image:
+    # minikube registry
+    registry: "localhost:5000/"
   # Each feeder should be defined within feeds. One deployment per feed will be created
   feeds:
     # feed name
@@ -204,6 +172,9 @@ ingest:
             type: configmap
             # REQUIRED with type secret or configmap
             name: dwv-hadoop
+  image:
+    # minikube registry
+    registry: "localhost:5000/"
   # Each ingest pool will create a deployment with replicas
   pools:
     # ingest pool name
@@ -279,7 +250,7 @@ messaging:
   image:
     repository: rabbitmq
     pullPolicy: IfNotPresent
-    tag: 3.7.7-alpine
+    tag: 3.11.4-alpine
   ports:
     amqp: 5672
     mgmt: 15672

@@ -1,5 +1,21 @@
 #Helm Charts for ingest service
 
+Can be run with datawave-helm-charts or standalone with an existing hadoop, zk, and accumulo configuration
+
+## Running with datawave-helm-charts
+
+### Enable the registry
+```bash
+# enable the minikube registry at localhost:5000
+minikube addons enable registry
+
+# build the images
+mvn clean package -Pdocker
+
+# create the minikube registry tags and push to the registry
+mvn clean install -Pdocker -Ddocker.registry="localhost:5000/" -DpushImage -DskipDockerBuild
+```
+
 ##Requirements:
 * Running k8s cluster
 * helm 3+
