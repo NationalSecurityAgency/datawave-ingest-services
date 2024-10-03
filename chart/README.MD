@@ -4,16 +4,22 @@ Can be run with datawave-helm-charts or standalone with an existing hadoop, zk, 
 
 ## Running with datawave-helm-charts
 
-### Enable the registry
+### Deploying to a local registry
 ```bash
+# see https://minikube.sigs.k8s.io/docs/handbook/registry/ for more details
 # enable the minikube registry at localhost:5000
 minikube addons enable registry
+
+# create a pipe to the registry running inside of minikube
+docker run --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:5000,reuseaddr,fork TCP:$(minikube ip):5000"
 
 # build the images
 mvn clean package -Pdocker
 
 # create the minikube registry tags and push to the registry
 mvn clean install -Pdocker -Ddocker.registry="localhost:5000/" -DpushImage -DskipDockerBuild
+
+# use localhost:5000/ as the registry for all ingest services
 ```
 
 ##Requirements:

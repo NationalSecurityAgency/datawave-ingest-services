@@ -129,17 +129,13 @@ ingest:
       - /data/config
       - /data/otherConfig
   initContainers:
-#    - name: "copy-configs"
-#      image:
-#        repository: ghcr.io/nationalsecurityagency/datawave/ingest-kubernetes
-#        tag: 7.5.0-SNAPSHOT
-#      cmd: ["/bin/bash", "-c", "mkdir -p /local/datawave/conf", "cp /opt/datawave-ingest/current/config/* /local/datawave/conf/"]
     - name: "create-ingest-mycsv"
       env:
         - name: HADOOP_USER_NAME
           value: datawave
       image:
-        repository: ghcr.io/nationalsecurityagency/datawave-stack-hadoop
+        registry: ghcr.io/
+        repository: nationalsecurityagency/datawave-stack-hadoop
         tag: 3.3.6
       cmd: ["/bin/bash", "-c", "hadoop fs -mkdir -p hdfs:///datawave/ingest/mycsv"]
       volumes:
@@ -158,7 +154,8 @@ ingest:
         - name: HADOOP_USER_NAME
           value: datawave
       image:
-        repository: ghcr.io/nationalsecurityagency/datawave-stack-hadoop
+        registry: ghcr.io/
+        repository: nationalsecurityagency/datawave-stack-hadoop
         tag: 3.3.6
       cmd: ["/bin/bash", "-c", "hadoop fs -mkdir -p hdfs:///datawave/ingest/myjson"]
       volumes:
