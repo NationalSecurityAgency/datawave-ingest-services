@@ -46,18 +46,10 @@ global:
     datawave:
       name: datawave-conf
       destination: /etc/datawave/conf
-      readOnly: true
       source:
-        # aggregate multiple dwv configmaps
-        type: projected
-        maps:
-          - datawave-general-ingest-config
-          - dwv-ingest-ingest-config-configmap
-          - dwv-ingest-data-types-configmap
-          #- dwv-ingest-ingest-config-configmap
-          #- dwv-ingest-data-types-configmap
-          #- dwv-all-ingest
-    # REQUIRED (Ingest)
+        type: pvc
+        claim: datawave-ingest-config-pvc
+        readOnly: true
     output:
       # REQUIRED Output location volume name
       name: output
@@ -182,6 +174,8 @@ ingest:
       replicas: 1
       # spring profiles to apply to speedy pool
       profiles: "dwv,dwv-live"
+  imagePullSecrets:
+    - name: dockerconfigjson-ghcr
   env:
     - name: HADOOP_USER_NAME
       value: datawave

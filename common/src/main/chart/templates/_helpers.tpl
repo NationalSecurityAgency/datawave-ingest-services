@@ -28,6 +28,12 @@ Volumes
       - configMap:
           name: {{ . }}
     {{- end }}
+  {{- else if eq .source.type "pvc" }}
+  persistentVolumeClaim:
+    claimName: {{ .source.claim }}
+    {{ if .source.readOnly }}
+    readOnly: true
+    {{ end }}
   {{- else if eq .source.type "secret" }}
   secret:
     secretName: {{ .source.name }}
