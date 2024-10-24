@@ -1,0 +1,11 @@
+ingest:
+  fsConfigResources:
+    - /etc/hadoop/conf/hdfs-site.xml
+    - /etc/hadoop/conf/core-site.xml
+    - /etc/datawave/conf/
+  liveIngest: true
+  accumuloProperties:
+    instanceName: ${accumulo.instanceName}
+    zookeepers: ${accumulo.zookeepers}
+    username: ${accumulo.username}
+    password: ${accumulo.password}

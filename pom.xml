@@ -23,12 +23,14 @@
     <url>https://github.com/NationalSecurityAgency/datawave-ingest-service</url>
   </scm>
   <properties>
+    <docker.registry>ghcr.io/</docker.registry>
     <version.accumulo>2.1.1</version.accumulo>
     <version.avro>1.8.2</version.avro>
-    <version.datawave>6.9.3</version.datawave>
+    <version.datawave>7.3.0</version.datawave>
     <version.guava>32.0.0-jre</version.guava>
     <version.hadoop>3.3.3</version.hadoop>
     <version.microservice.accumulo-utils>4.0.1</version.microservice.accumulo-utils>
+    <version.microservice.base-rest-responses>4.0.0</version.microservice.base-rest-responses>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
     <version.microservice.starter>4.0.2</version.microservice.starter>
   </properties>
@@ -76,6 +78,11 @@
       </dependency>
       <dependency>
         <groupId>gov.nsa.datawave</groupId>
+        <artifactId>base-rest-responses</artifactId>
+        <version>${version.datawave}</version>
+      </dependency>
+      <dependency>
+        <groupId>gov.nsa.datawave</groupId>
         <artifactId>datawave-ingest-core</artifactId>
         <version>${version.datawave}</version>
         <exclusions>
@@ -96,16 +103,12 @@
             <artifactId>commons-collections</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>gov.nsa.datawave.microservice</groupId>
             <artifactId>accumulo-utils</artifactId>
           </exclusion>
           <exclusion>
             <groupId>gov.nsa.datawave.microservice</groupId>
-            <artifactId>common-utils</artifactId>
+            <artifactId>base-rest-responses</artifactId>
           </exclusion>
           <exclusion>
             <groupId>gov.nsa.datawave.webservices</groupId>
@@ -169,9 +172,34 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>gov.nsa.datawave</groupId>
+        <artifactId>datawave-ingest-json</artifactId>
+        <version>${version.datawave}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>gov.nsa.datawave.webservices</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>gov.nsa.datawave.microservice</groupId>
         <artifactId>accumulo-utils</artifactId>
         <version>${version.microservice.accumulo-utils}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>gov.nsa.datawave.microservice</groupId>
@@ -212,6 +240,10 @@
           <exclusion>
             <groupId>gov.nsa.datawave.microservice</groupId>
             <artifactId>accumulo-utils</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>gov.nsa.datawave.microservice</groupId>
+            <artifactId>base-rest-responses</artifactId>
           </exclusion>
           <exclusion>
             <groupId>io.protostuff</groupId>
@@ -373,6 +405,10 @@
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>*</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>dnsjava</groupId>
+            <artifactId>dnsjava</artifactId>
           </exclusion>
           <exclusion>
             <groupId>log4j</groupId>
@@ -590,6 +626,11 @@
       <groupId>gov.nsa.datawave.microservice</groupId>
       <artifactId>accumulo-utils</artifactId>
       <version>${version.microservice.accumulo-utils}</version>
+    </dependency>
+    <dependency>
+      <groupId>gov.nsa.datawave.microservice</groupId>
+      <artifactId>base-rest-responses</artifactId>
+      <version>${version.microservice.base-rest-responses}</version>
     </dependency>
     <dependency>
       <groupId>gov.nsa.datawave.microservice</groupId>

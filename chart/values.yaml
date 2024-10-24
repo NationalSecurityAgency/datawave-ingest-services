@@ -1,15 +1,12 @@
-# Minimal umbrella chart for datawave ingest services. See README.MD for full configuration options
-
+# dwv references are using the datawave-helm-chart repo resources unless otherwise indicated
 global:
-  registry: ""
   services:
-    # TODO an accessible configuration service, or the name of the internal configuration service if enabled
-    configuration: ""
-    # TODO an external zookeeper service name
-    zookeeper: ""
-    # TODO an accessible rabbitmq service, or the name of the internal rabbitmq service if enabled
-    rabbitmq: ""
-  # TODO change secret names and bindings as necessary for the target system
+    # use embedded configuration service
+    configuration: ingest-configuration
+    # use embedded rabbitmq
+    rabbitmq: ingest-rabbitmq
+    # use dwv zookeeper
+    zookeeper: zookeeper
   secrets:
     accumulo:
       name: accumulo
@@ -18,9 +15,11 @@ global:
     keystore:
       name: keystore
       alias: alias
+      path: path
       password: password
     truststore:
       name: truststore
+      path: path
       password: password
   volumes:
     pki:
@@ -36,7 +35,8 @@ global:
       readOnly: true
       source:
         type: configmap
-        name: hadoop-hadoop-minikube
+        # use dwv hadoop config
+        name: dwv-hadoop-config
     logs:
       name: logs
       destination: /logs
@@ -46,10 +46,10 @@ global:
     datawave:
       name: datawave-conf
       destination: /etc/datawave/conf
-      readOnly: true
       source:
-        type: configmap
-        name: datawave-ingest-configmap
+        type: pvc
+        claim: datawave-ingest-config-pvc
+        readOnly: true
     output:
       name: output
       destination: /output
@@ -77,19 +77,126 @@ global:
       source:
         type: configmap
         name: rabbit-configmap
+# Feeder definition
 feeder:
-  # TODO define feeds
-  feeds: []
+  image:
+    # minikube registry
+    registry: "localhost:5000/"
+  feeds:
+    - name: "mycsv-live"
+      # spring profiles to apply
+      profile: "dwv,dwv-mycsv"
+      queue: "live"
+    - name: "myjson-live"
+      # spring profiles to appl
+      profile: "dwv,dwv-myjson"
+      queue: "live"
+  env:
+    - name: HADOOP_USER_NAME
+      value: datawave
+# Ingest definition
 ingest:
-  # TODO define ingest pools
-  pools: []
+  # setup hdfs directories for the feeder
+  initContainers:
+    - name: "create-ingest-mycsv"
+      env:
+        - name: HADOOP_USER_NAME
+          value: datawave
+      image:
+        registry: ghcr.io/
+        repository: nationalsecurityagency/datawave-stack-hadoop
+        tag: 3.3.6
+      cmd: ["/bin/bash", "-c", "hadoop fs -mkdir -p hdfs:///datawave/ingest/mycsv"]
+      volumes:
+        - name: hadoop
+          destination: /etc/hadoop/conf
+          readOnly: true
+          source:
+            type: configmap
+            name: dwv-hadoop
+    - name: "create-ingest-myjson"
+      env:
+        - name: HADOOP_USER_NAME
+          value: datawave
+      image:
+        registry: ghcr.io/
+        repository: nationalsecurityagency/datawave-stack-hadoop
+        tag: 3.3.6
+      cmd: ["/bin/bash", "-c", "hadoop fs -mkdir -p hdfs:///datawave/ingest/myjson"]
+      volumes:
+        - name: hadoop
+          destination: /etc/hadoop/conf
+          readOnly: true
+          source:
+            type: configmap
+            name: dwv-hadoop
+  image:
+    # minikube registry
+    registry: "localhost:5000/"
+  pools:
+    # ingest pool name
+    - name: "live"
+      # rabbitmq queue to read off of
+      queue: "live"
+      # number of replicas in the pool
+      replicas: 1
+      # spring profiles to apply to this pool
+      profiles: "dwv,dwv-live"
+  imagePullSecrets:
+    - name: dockerconfigjson-ghcr
+  env:
+    - name: HADOOP_USER_NAME
+      value: datawave
+    - name: DATAWAVE_INGEST_HOME
+      value: /etc/datawave/conf
+
+# Bundler definitions
 bundler:
-  # TODO enable if desired and define pools
+  # true if the bundler is being used
   enabled: false
-  pools: []
+# if a secret is necessary for bootstrapping define it here.
+#### FOR TESTING ONLY. DO NOT USE IN PRODUCTION ####
+secrets:
+  accumulo:
+    # accumulo secret name
+    name: accumulo
+    # accumulo username value
+    username: root
+    # password defined in dwv-helm-chart not secure, do not use for anything but local testing
+    password: ThisP@ssw0rd1sBANANAS
+  keystore:
+    name: keystore
+    alias: "1"
+    password: changeme
+    path: "file:///data/certs/keystore.p12"
+  truststore:
+    name: truststore
+    password: ChangeIt
+    path: "file:///data/certs/truststore.jks"
+  pki:
+    name: datawave-certificates-secret
+    dir: example-certs
+# if configuration is necessary for bootstrapping define it here, specify another named configuration service in global.services.configuration
+# configuration.name and messaging.name should match global.services.configuration and global.services.rabbitmq if enabled
 configuration:
-  # TODO enable and configure if not using external configuration service
-  enabled: false
+  enabled: true
+  name: ingest-configuration
+  dir: example-config
+  port: 8888
+  replicaCount: 1
+  image:
+    registry: "ghcr.io/"
+    repository: nationalsecurityagency/datawave-config-service
+    pullPolicy: IfNotPresent
+    tag: 4.0.1
 messaging:
-  # TODO enable and configuration if not using an external rabbitmq service
-  enabled: false
+  enabled: true
+  name: ingest-rabbitmq
+  replicaCount: 1
+  image:
+    repository: rabbitmq
+    pullPolicy: IfNotPresent
+    tag: 3.11.4-alpine
+  ports:
+    amqp: 5672
+    mgmt: 15672
