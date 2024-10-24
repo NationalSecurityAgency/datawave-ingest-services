@@ -51,32 +51,21 @@ global:
         claim: datawave-ingest-config-pvc
         readOnly: true
     output:
-      # REQUIRED Output location volume name
       name: output
-      # REQUIRED mount location for output
       destination: /output
-      # REQUIRED hdfs prefix for destination
       prefix: "file://"
       source:
-        # REQUIRED must be one of secret/configmap/hostPath
         type: hostPath
-        # REQUIRED when specifying hostPath, host path to mount into destination
         path: /srv/data/datawave/ingest/
-    # REQUIRED (Bundler)
     input:
-      # REQUIRED input location volume
       name: input
-      # REQUIRED mount location for input
       destination: /input
       source:
-        # REQUIRED must be one of secret/configmap/hostPath
         type: hostPath
-        # REQUIRED when specifying hostPath, host path to mount into destination
         path: /srv/data/datawave/ingest/
     config:
       name: application-configs
       destination: /microservice-config
-      # OPTIONAL specify if the volume is ready only
       readOnly: true
       source:
         type: configmap
@@ -84,7 +73,6 @@ global:
     rabbit:
       name: rabbit
       destination: /etc/rabbitmq/
-      # OPTIONAL specify if the volume is ready only
       readOnly: true
       source:
         type: configmap
@@ -94,32 +82,21 @@ feeder:
   image:
     # minikube registry
     registry: "localhost:5000/"
-  # Each feeder should be defined within feeds. One deployment per feed will be created
   feeds:
-    # feed name
     - name: "mycsv-live"
-      # spring profiles to apply to feed1
+      # spring profiles to apply
       profile: "dwv,dwv-mycsv"
-      # rabbitmq queue to publish content from feed1
       queue: "live"
-    # feed name
     - name: "myjson-live"
-      # spring profiles to apply to feed2
+      # spring profiles to appl
       profile: "dwv,dwv-myjson"
-      # rabbitmq queue to publish content from feed2
       queue: "live"
   env:
     - name: HADOOP_USER_NAME
       value: datawave
 # Ingest definition
 ingest:
-  init:
-    name: "copy-conf"
-    image: busybox
-    tag: 1.28
-    files:
-      - /data/config
-      - /data/otherConfig
+  # setup hdfs directories for the feeder
   initContainers:
     - name: "create-ingest-mycsv"
       env:
@@ -132,14 +109,10 @@ ingest:
       cmd: ["/bin/bash", "-c", "hadoop fs -mkdir -p hdfs:///datawave/ingest/mycsv"]
       volumes:
         - name: hadoop
-          # REQUIRED mount location for hadoop
           destination: /etc/hadoop/conf
-          # OPTIONAL specify if the volume is ready only
           readOnly: true
           source:
-            # REQUIRED must be one of secret/configmap/hostPath
             type: configmap
-            # REQUIRED with type secret or configmap
             name: dwv-hadoop
     - name: "create-ingest-myjson"
       env:
@@ -152,27 +125,22 @@ ingest:
       cmd: ["/bin/bash", "-c", "hadoop fs -mkdir -p hdfs:///datawave/ingest/myjson"]
       volumes:
         - name: hadoop
-          # REQUIRED mount location for hadoop
           destination: /etc/hadoop/conf
-          # OPTIONAL specify if the volume is ready only
           readOnly: true
           source:
-            # REQUIRED must be one of secret/configmap/hostPath
             type: configmap
-            # REQUIRED with type secret or configmap
             name: dwv-hadoop
   image:
     # minikube registry
     registry: "localhost:5000/"
-  # Each ingest pool will create a deployment with replicas
   pools:
     # ingest pool name
     - name: "live"
       # rabbitmq queue to read off of
       queue: "live"
-      # number of replcias in the pool
+      # number of replicas in the pool
       replicas: 1
-      # spring profiles to apply to speedy pool
+      # spring profiles to apply to this pool
       profiles: "dwv,dwv-live"
   imagePullSecrets:
     - name: dockerconfigjson-ghcr
@@ -181,19 +149,6 @@ ingest:
       value: datawave
     - name: DATAWAVE_INGEST_HOME
       value: /etc/datawave/conf
-#  volumes:
-#    - name: dwv-ingest-conf
-#      # REQUIRED mount location for hadoop
-#      destination: /etc/datawave/conf
-#      # OPTIONAL specify if the volume is ready only
-#      readOnly: true
-#      source:
-#        # REQUIRED must be one of secret/configmap/hostPath
-#        type: projected
-#        # REQUIRED with type secret or configmap
-#        maps:
-#          - dwv-ingest-ingest-config-configmap
-#          -
 
 # Bundler definitions
 bundler:
@@ -207,7 +162,7 @@ secrets:
     name: accumulo
     # accumulo username value
     username: root
-    # accumulo password value
+    # password defined in dwv-helm-chart not secure, do not use for anything but local testing
     password: ThisP@ssw0rd1sBANANAS
   keystore:
     name: keystore
