@@ -26,13 +26,14 @@
     <docker.registry>ghcr.io/</docker.registry>
     <version.accumulo>2.1.1</version.accumulo>
     <version.avro>1.8.2</version.avro>
-    <version.datawave>7.3.0</version.datawave>
+    <version.datawave>7.9.0</version.datawave>
     <version.guava>32.0.0-jre</version.guava>
     <version.hadoop>3.3.3</version.hadoop>
     <version.microservice.accumulo-utils>4.0.1</version.microservice.accumulo-utils>
     <version.microservice.base-rest-responses>4.0.0</version.microservice.base-rest-responses>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
     <version.microservice.starter>4.0.2</version.microservice.starter>
+    <version.microservice.type-utils>3.0.2</version.microservice.type-utils>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -248,6 +249,25 @@
           <exclusion>
             <groupId>io.protostuff</groupId>
             <artifactId>protostuff-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>gov.nsa.datawave.microservice</groupId>
+        <artifactId>type-utils</artifactId>
+        <version>${version.microservice.type-utils}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
