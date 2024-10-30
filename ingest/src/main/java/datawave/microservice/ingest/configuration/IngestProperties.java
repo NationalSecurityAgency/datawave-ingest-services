@@ -1,17 +1,15 @@
 package datawave.microservice.ingest.configuration;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
-
+import datawave.microservice.config.accumulo.AccumuloProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import datawave.microservice.config.accumulo.AccumuloProperties;
+import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Validated
 @EnableConfigurationProperties(IngestProperties.class)

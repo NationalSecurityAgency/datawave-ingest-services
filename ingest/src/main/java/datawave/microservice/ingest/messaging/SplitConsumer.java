@@ -1,13 +1,7 @@
 package datawave.microservice.ingest.messaging;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-
+import datawave.microservice.ingest.configuration.IngestProperties;
+import datawave.microservice.ingest.driver.IngestDriver;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
@@ -19,8 +13,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
-import datawave.microservice.ingest.configuration.IngestProperties;
-import datawave.microservice.ingest.driver.IngestDriver;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 /**
  * Responsible for processing messages off of the configured rabbitmq topic and kicking off the configured ingest job for each file. The uuid, attempts, and

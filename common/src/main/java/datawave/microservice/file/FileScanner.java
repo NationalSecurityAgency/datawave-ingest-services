@@ -1,21 +1,19 @@
 package datawave.microservice.file;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import datawave.microservice.file.configuration.FileScannerProperties;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
-import datawave.microservice.file.configuration.FileScannerProperties;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base implementation to scan a directory and process found files based on maxFiles, maxSize, and maxAge.

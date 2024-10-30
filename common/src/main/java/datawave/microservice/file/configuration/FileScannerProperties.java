@@ -1,11 +1,10 @@
 package datawave.microservice.file.configuration;
 
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Properties to be used with the FileScanner

@@ -1,10 +1,10 @@
 package datawave.microservice.ingest.adapter;
 
-import java.io.IOException;
-
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+import java.io.IOException;
 
 public class ManifestOutputFormat<K,V> extends TextOutputFormat<K,V> {
     @Override

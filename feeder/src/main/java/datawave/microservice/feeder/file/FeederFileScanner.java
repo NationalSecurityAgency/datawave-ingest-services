@@ -1,7 +1,9 @@
 package datawave.microservice.feeder.file;
 
-import java.io.IOException;
-
+import datawave.microservice.feeder.configuration.FeederProperties;
+import datawave.microservice.feeder.messaging.MessageSupplier;
+import datawave.microservice.file.FileScanner;
+import datawave.microservice.file.configuration.FileScannerProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -9,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
-import datawave.microservice.feeder.configuration.FeederProperties;
-import datawave.microservice.feeder.messaging.MessageSupplier;
-import datawave.microservice.file.FileScanner;
-import datawave.microservice.file.configuration.FileScannerProperties;
+import java.io.IOException;
 
 /**
  * Feeder will run on ${file.frequency} interval. Files from the inputDir will be scanned and moved to the targetDir, preserving path beyond the inputDir if
