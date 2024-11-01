@@ -1,0 +1,5 @@
+file:
+  inputDir: '/datawave/ingest/mycsv'
+
+feeder:
+  targetDir: '/datawave/ingest/flagged/mycsv'

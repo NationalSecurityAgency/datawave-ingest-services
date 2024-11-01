@@ -1,0 +1,7 @@
+file:
+  inputDir: '/datawave/ingest/myjson'
+
+feeder:
+  targetDir: '/datawave/ingest/flagged/myjson'
+  dataType: 'myjson'
+  inputFormatClass: 'datawave.ingest.json.mr.input.JsonInputFormat'

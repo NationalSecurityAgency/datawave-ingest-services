@@ -1,0 +1,14 @@
+server:
+  outbound-ssl:
+    key-store: 'file:///data/certs/keystore.p12'
+    trust-store: 'file:///data/certs/truststore.jks'
+  ssl:
+    key-store: 'file:///data/certs/keystore.p12'
+    key-store-password: ${KEYSTORE_PASSWORD}
+    key-store-type: 'PKCS12'
+    trust-store: 'file:///data/certs/truststore.jks'
+    trust-store-password: ${TRUSTSTORE_PASSWORD}
+    trust-store-type: 'JKS'
+accumulo:
+  zookeepers: 'zookeeper:2181'
+  instanceName: 'dev'

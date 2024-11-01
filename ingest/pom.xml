@@ -25,6 +25,10 @@
       <groupId>gov.nsa.datawave</groupId>
       <artifactId>datawave-ingest-csv</artifactId>
     </dependency>
+    <dependency>
+      <groupId>gov.nsa.datawave</groupId>
+      <artifactId>datawave-ingest-json</artifactId>
+    </dependency>
   </dependencies>
   <repositories>
     <repository>
@@ -62,6 +66,36 @@
           <plugin>
             <groupId>com.spotify</groupId>
             <artifactId>docker-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>build-image</id>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+              <execution>
+                <id>tag-image</id>
+                <goals>
+                  <goal>tag</goal>
+                </goals>
+                <phase>install</phase>
+                <configuration>
+                  <image>datawave/${project.artifactId}:${project.version}</image>
+                  <newName>${docker.registry}datawave/${project.artifactId}:${project.version}</newName>
+                </configuration>
+              </execution>
+              <execution>
+                <id>push-image</id>
+                <goals>
+                  <goal>push</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <imageName>${docker.registry}datawave/${project.artifactId}:${project.version}</imageName>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
