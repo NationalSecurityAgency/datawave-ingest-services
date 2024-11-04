@@ -1,11 +1,12 @@
 package datawave.microservice.feeder.messaging;
 
+import java.util.function.Supplier;
+
 import org.springframework.messaging.Message;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.function.Supplier;
 
 public class MessageSupplier implements Supplier<Flux<Message<String>>> {
     private final Sinks.Many<Message<String>> messagingSink = Sinks.many().multicast().onBackpressureBuffer();
