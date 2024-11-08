@@ -64,8 +64,20 @@
             <groupId>com.spotify</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <configuration>
-              <imageName>${docker.registry}nationalsecurityagency/datawave-feeder-service</imageName>
+              <imageName>${docker.registry}nationalsecurityagency/datawave-feeder-service:${project.version}</imageName>
             </configuration>
+            <executions>
+              <execution>
+                <id>push-image</id>
+                <goals>
+                  <goal>push</goal>
+                </goals>
+                <phase>deploy</phase>
+                <configuration>
+                  <imageName>${docker.registry}nationalsecurityagency/datawave-ingest-service:${project.version}</imageName>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
