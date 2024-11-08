@@ -76,7 +76,7 @@
                 <goals>
                   <goal>push</goal>
                 </goals>
-                <phase>deploy</phase>
+                <phase>install</phase>
                 <configuration>
                   <imageName>${docker.registry}nationalsecurityagency/datawave-bundler-service:${project.version}</imageName>
                 </configuration>

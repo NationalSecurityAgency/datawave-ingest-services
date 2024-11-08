@@ -80,7 +80,7 @@
                 <goals>
                   <goal>push</goal>
                 </goals>
-                <phase>deploy</phase>
+                <phase>install</phase>
                 <configuration>
                   <imageName>${docker.registry}nationalsecurityagency/datawave-ingest-service:${project.version}</imageName>
                 </configuration>
