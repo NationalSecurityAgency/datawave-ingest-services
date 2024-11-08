@@ -78,7 +78,7 @@
                 </goals>
                 <phase>deploy</phase>
                 <configuration>
-                  <imageName>${docker.registry}nationalsecurityagency/datawave-ingest-service:${project.version}</imageName>
+                  <imageName>${docker.registry}nationalsecurityagency/datawave-bundler-service:${project.version}</imageName>
                 </configuration>
               </execution>
             </executions>
