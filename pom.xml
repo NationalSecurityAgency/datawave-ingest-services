@@ -79,11 +79,6 @@
       </dependency>
       <dependency>
         <groupId>gov.nsa.datawave</groupId>
-        <artifactId>base-rest-responses</artifactId>
-        <version>${version.datawave}</version>
-      </dependency>
-      <dependency>
-        <groupId>gov.nsa.datawave</groupId>
         <artifactId>datawave-ingest-core</artifactId>
         <version>${version.datawave}</version>
         <exclusions>
@@ -205,7 +200,7 @@
       <dependency>
         <groupId>gov.nsa.datawave.microservice</groupId>
         <artifactId>base-rest-responses</artifactId>
-        <version>1.2</version>
+        <version>${version.microservice.base-rest-responses}</version>
         <exclusions>
           <exclusion>
             <groupId>gov.nsa.datawave.microservice</groupId>
@@ -650,7 +645,6 @@
     <dependency>
       <groupId>gov.nsa.datawave.microservice</groupId>
       <artifactId>base-rest-responses</artifactId>
-      <version>${version.microservice.base-rest-responses}</version>
     </dependency>
     <dependency>
       <groupId>gov.nsa.datawave.microservice</groupId>
