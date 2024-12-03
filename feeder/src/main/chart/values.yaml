@@ -34,7 +34,7 @@ feeds: []
 workingDir: /
 
 image:
-  repository: "datawave/feeder-service"
+  repository: "nationalsecurityagency/datawave-bundler-service"
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
