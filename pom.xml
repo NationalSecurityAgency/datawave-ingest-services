@@ -26,7 +26,7 @@
     <docker.registry>ghcr.io/</docker.registry>
     <version.accumulo>2.1.1</version.accumulo>
     <version.avro>1.8.2</version.avro>
-    <version.datawave>7.9.0</version.datawave>
+    <version.datawave>7.13.0</version.datawave>
     <version.guava>32.0.0-jre</version.guava>
     <version.hadoop>3.3.3</version.hadoop>
     <version.microservice.accumulo-utils>4.0.1</version.microservice.accumulo-utils>
