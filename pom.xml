@@ -33,7 +33,7 @@
     <version.microservice.base-rest-responses>4.0.0</version.microservice.base-rest-responses>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
     <version.microservice.starter>4.0.2</version.microservice.starter>
-    <version.microservice.type-utils>3.0.2</version.microservice.type-utils>
+    <version.microservice.type-utils>3.1.2</version.microservice.type-utils>
   </properties>
   <dependencyManagement>
     <dependencies>
