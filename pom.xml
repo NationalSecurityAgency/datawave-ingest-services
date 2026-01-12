@@ -262,16 +262,12 @@
             <artifactId>base-rest-responses</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>io.protostuff</groupId>
-            <artifactId>protostuff-api</artifactId>
+            <groupId>gov.nsa.datawave.microservice</groupId>
+            <artifactId>accumulo-utils</artifactId>
           </exclusion>
           <exclusion>
             <groupId>gov.nsa.datawave.microservice</groupId>
             <artifactId>base-rest-responses</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>gov.nsa.datawave.microservice</groupId>
-            <artifactId>accumulo-utils</artifactId>
           </exclusion>
           <exclusion>
             <groupId>gov.nsa.datawave.microservice</groupId>
@@ -284,6 +280,10 @@
           <exclusion>
             <groupId>gov.nsa.datawave.microservice</groupId>
             <artifactId>type-utils</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.protostuff</groupId>
+            <artifactId>protostuff-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
