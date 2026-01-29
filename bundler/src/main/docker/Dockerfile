@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-alpine:11.0.20.1-11.66.19
+FROM amazoncorretto:11.0.27-alpine
 
 LABEL version=${project.version} \
       run="docker run ${docker.image.prefix}${project.artifactId}:latest" \
