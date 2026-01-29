@@ -5,14 +5,8 @@
    <servers>
       <server>
          <id>github-datawave</id>
-         <configuration>
-            <httpHeaders>
-               <property>
-                  <name>Authorization</name>
-                  <value>Bearer ${env.GITHUB_TOKEN}</value>
-               </property>
-            </httpHeaders>
-         </configuration>
+         <username>${env.USER_NAME}</username>
+         <password>${env.ACCESS_TOKEN}</password>
       </server>
    </servers>
 </settings>
