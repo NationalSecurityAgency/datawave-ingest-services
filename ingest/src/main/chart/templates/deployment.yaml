@@ -26,9 +26,9 @@ spec:
       securityContext:
         {{- toYaml $.Values.podSecurityContext | nindent 8 }}
       initContainers:
-        {{- range $.Values.initContainers }}
-        - name: {{ .name }}
-          image: "{{ default $.Values.image.registry .image.registry | default $.Values.global.registry }}{{ .image.repository }}:{{ .image.tag }}"
+        {{- range $i, $c := $.Values.initContainers }}
+        - name: {{ $c.name }}
+          image: "{{ index $.Values.initContainerOverrides.registry $c.name | default .image.registry | default $.Values.image.registry | default $.Values.global.registry }}{{ index $.Values.initContainerOverrides.repository $c.name | default .image.repository }}:{{ index $.Values.initContainerOverrides.tag $c.name | default .image.tag }}"
           {{- if .securityContext }}
           securityContext:
             {{- toYaml .securityContext | nindent 12 }}
