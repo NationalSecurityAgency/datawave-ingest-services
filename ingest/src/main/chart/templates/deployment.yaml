@@ -68,6 +68,12 @@ spec:
             - containerPort: {{ default 5005 .debug.port }}
           {{- end }}
           env:
+            - name: "POD_NAME"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: "JAVA_TOOL_OPTIONS"
+              value: "-DlogDir=logs/$(POD_NAME)"
             - name: "SOURCE_QUEUE"
               value: {{ .queue }}
             - name: "OUTPUT_DIR"

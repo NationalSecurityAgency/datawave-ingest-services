@@ -36,7 +36,7 @@ global:
       source:
         type: configmap
         # use dwv hadoop config
-        name: dwv-hadoop-config
+        name: dwv-dwv-hadoop
     logs:
       name: logs
       destination: /logs
@@ -130,6 +130,14 @@ ingest:
           source:
             type: configmap
             name: dwv-hadoop
+  # Empty value required for running local test environment
+  initContainerOverrides:
+    registry:
+      empty: ""
+    repository:
+      empty: ""
+    tag:
+      empty: ""
   image:
     # minikube registry
     registry: "localhost:5000/"
@@ -185,8 +193,8 @@ configuration:
   port: 8888
   replicaCount: 1
   image:
-    registry: "ghcr.io/"
-    repository: nationalsecurityagency/datawave-config-service
+    registry: "containeryard.evoforge.org/"
+    repository: warehouses/datawave-config-service
     pullPolicy: IfNotPresent
     tag: 4.0.1
 messaging:

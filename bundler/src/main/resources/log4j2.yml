@@ -5,7 +5,7 @@ Configuration:
   Properties:
     Property:
       - name: logDir
-        value: "logs/"
+        value: "${sys:logDir:-logs/}"
       - name: PID
         value: "????"
       - name: LOG_PATTERN
@@ -22,6 +22,7 @@ Configuration:
       name: File
       fileName: ${logDir}/bundler.log
       filePattern: "${logDir}/bundler.log.%d{yyyy-MM-dd-hh}"
+      createOnDemand: true
       Policies:
         TimeBasedTriggeringPolicy:
           interval: 1

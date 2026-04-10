@@ -187,7 +187,12 @@ configuration and messaging services may be deployed as part of this chart or an
 
 `.image.pullPolicy` - sets the pull policy
 
-###Suggested testing environment 
+### New suggested testing environment
+[stack-in-k8s](https://gitlab.evoforge.org/warehouses1/stack_in_k8s)
+
+Follow README.md provided in stack-in-k8s project
+
+### Old testing environment 
 [minikube_helm](https://gitlab.evoforge.org/warehouses1/minikube_helm)
 ```bash
 helm install zk zookeeper/
