@@ -1,4 +1,4 @@
-FROM amazoncorretto:11.0.27-alpine
+FROM amazoncorretto:11.0.32-alpine
 
 LABEL version=${project.version} \
       run="docker run ${docker.image.prefix}${project.artifactId}:latest" \
