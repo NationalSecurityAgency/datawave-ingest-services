@@ -24,13 +24,13 @@
   </scm>
   <properties>
     <docker.registry>ghcr.io/</docker.registry>
-    <version.accumulo>2.1.4-5792fed3-bulkv2</version.accumulo>
+    <version.accumulo>2.1.6</version.accumulo>
     <version.avro>1.11.4</version.avro>
-    <version.datawave>7.41.6</version.datawave>
+    <version.datawave>7.42.0</version.datawave>
     <version.guava>32.0.0-jre</version.guava>
     <version.hadoop>3.4.1</version.hadoop>
     <version.microservice.ingest.common>${project.version}</version.microservice.ingest.common>
-    <version.microservice.starter>4.0.2</version.microservice.starter>
+    <version.microservice.starter>4.0.4</version.microservice.starter>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -122,6 +122,10 @@
           <exclusion>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>*</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.bouncycastle</groupId>
