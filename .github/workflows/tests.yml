@@ -9,46 +9,9 @@ on:
   pull_request:
     paths-ignore: ['*.md', 'CODEOWNERS', 'LICENSE']
 
-env:
-  JAVA_VERSION: '11'
-  JAVA_DISTRIBUTION: 'zulu' #This is the default on v1 of the action
-  MAVEN_OPTS: "-Djansi.force=true -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Djava.awt.headless=true -XX:ThreadStackSize=1m"
-
 jobs:
-  # Runs the pom sorter and code formatter to ensure that the code
-  # is formatted and poms are sorted according to project rules. This
-  # will fail if the formatter makes any changes.
-  check-code-formatting:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          cache: 'maven'
-      - name: Format code
-        run: |
-          mvn -s $GITHUB_WORKSPACE/.github/workflows/settings.xml -V -B -e clean formatter:format sortpom:sort -Pautoformat
-          git status
-          git diff-index --quiet HEAD || (echo "Error! There are modified files after formatting." && false)
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-  # Build the code and run the unit/integration tests.
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          cache: 'maven'
-      - name: Build and Run Unit Tests
-        run: mvn -s $GITHUB_WORKSPACE/.github/workflows/settings.xml -V -B -e -Ddist clean verify
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+  call-reusable-workflow:
+    uses: nationalsecurityagency/datawave/.github/workflows/microservice-maven-tests.yaml@integration
+    secrets:
+      USER_NAME: ${{ secrets.USER_NAME }}
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
